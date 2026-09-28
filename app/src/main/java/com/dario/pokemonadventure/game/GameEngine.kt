@@ -288,10 +288,11 @@ class GameEngine(val context: Context) {
                 val idx = npc.trainerIndex
                 val t = m.trainers.getOrNull(idx) ?: return
                 val key = "${m.def.id}:$idx"
+                val tLabel = if (t.title.isEmpty()) t.name else "${t.title} ${t.name}"
                 if (player.beatenTrainers.contains(key)) {
-                    dialog.addLast("${t.title} ${t.name}: ¡Buen combate! Vuelve cuando quieras la revancha.")
+                    dialog.addLast("$tLabel: ¡Buen combate! Vuelve cuando quieras la revancha.")
                 } else if (player.anyAlive()) {
-                    dialog.addLast("¡${t.title} ${t.name} te desafía a un combate!")
+                    dialog.addLast("¡$tLabel te desafía a un combate!")
                     pendingTrainer = idx
                 } else {
                     dialog.addLast("Tu equipo está debilitado... Ve primero al Centro Pokémon.")

@@ -35,7 +35,11 @@ class TileMap(val def: RegionDef) {
     val townX = 24
     val townY = 20
     val npcs = ArrayList<Npc>()
-    val trainers: List<TrainerDef> = def.trainers
+
+    // Entrenadores: los de la región + los generados de ruta
+    private val routeTrainerDefs = ArrayList<TrainerDef>()
+    val trainers: List<TrainerDef> get() = def.trainers + routeTrainerDefs
+
     private val rnd = java.util.Random(def.seed)
 
     init {
@@ -62,6 +66,35 @@ class TileMap(val def: RegionDef) {
         }?.takeIf {
             (abs(it.x + 0.5f - px) + abs(it.y + 0.5f - py)) <= maxDist
         }
+    }
+
+    companion object {
+        private val CLASSES = listOf(
+            "Joven", "Señorita", "Escolar", "Pescador", "Montañero",
+            "Campista", "Cazabichos", "Guitarrista", "Escolar", "Runner"
+        )
+        private val NAMES = listOf(
+            "Alex", "Marta", "Iván", "Lucía", "Dani", "Rosa", "Pablo", "Elena",
+            "Sergio", "Nadia", "Bruno", "Claudia", "Hugo", "Mía", "Óscar", "Vera",
+            "Teo", "Alma", "Nico", "Iris", "Chema", "Lola"
+        )
+    }
+
+    private fun genRouteTrainer(): TrainerDef {
+        val enc = def.encounters
+        val count = 2 + rnd.nextInt(2)
+        val team = ArrayList<Pair<Int, Int>>()
+        var lvlSum = 0
+        repeat(count) {
+            val e = enc[rnd.nextInt(enc.size)]
+            val lvl = e.minLevel + rnd.nextInt(e.maxLevel - e.minLevel + 1)
+            lvlSum += lvl
+            team.add(e.speciesId to lvl)
+        }
+        val cls = CLASSES[rnd.nextInt(CLASSES.size)]
+        val name = NAMES[rnd.nextInt(NAMES.size)]
+        val reward = (lvlSum / count.coerceAtLeast(1)) * 12 + 100
+        return TrainerDef(name, cls, team, reward)
     }
 
     private fun generate() {
@@ -171,21 +204,47 @@ class TileMap(val def: RegionDef) {
         npcs.add(Npc(townX + 2, townY, Npc.Kind.SHOP, "Tendero"))
         npcs.add(Npc(townX, townY + 2, Npc.Kind.GUIDE, "Guía"))
 
-        // 15. Entrenadores rivales: 5 puntos repartidos por la ruta y el pueblo
+        // 15. Entrenadores fijos de la región (índices estables, compatible con partidas):
+        //     0-4 célebres (rival, 2 líderes, Alto Mando, campeón)
+        //     5 jefe del equipo villano (custodia el portal)
+        //     6-7 reclutas villanos en el camino
         val spots = listOf(
-            intArrayOf(townX - 1, spawnY - 3),   // rival, junto a la plaza inicial
-            intArrayOf(townX, spawnY - 12),     // líder, mitad del camino
-            intArrayOf(townX + 1, townY + 6),   // líder, entrada del pueblo
-            intArrayOf(townX - 3, townY + 2),   // alto mando, dentro del pueblo
-            intArrayOf(townX - 1, townY - 6)    // campeón, junto al portal
+            intArrayOf(townX - 1, spawnY - 3),   // 0 rival, junto a la plaza inicial
+            intArrayOf(townX, spawnY - 12),     // 1 líder, mitad del camino
+            intArrayOf(townX + 1, townY + 6),   // 2 líder, entrada del pueblo
+            intArrayOf(townX - 3, townY + 2),   // 3 alto mando, dentro del pueblo
+            intArrayOf(townX - 1, townY - 6),   // 4 campeón, corredor norte
+            intArrayOf(townX + 1, townY - 6),   // 5 jefe villano, corredor norte
+            intArrayOf(townX, spawnY - 6),      // 6 recluta villano
+            intArrayOf(townX, spawnY - 15)      // 7 recluta villano
         )
-        for (i in trainers.indices) {
+        for (i in def.trainers.indices) {
             val s = spots[i % spots.size]
             set(s[0], s[1], Tile.PATH)
-            npcs.add(Npc(s[0], s[1], Npc.Kind.TRAINER, trainers[i].name, i))
+            npcs.add(Npc(s[0], s[1], Npc.Kind.TRAINER, def.trainers[i].name, i))
         }
 
-        // 16. Regalos estilo Pokémon Amarillo (solo en Kanto):
+        // 16. Entrenadores de ruta (densidad por generación), colocados en terreno transitable
+        val base = def.trainers.size
+        var placed = 0
+        var guard = 0
+        while (placed < def.routeTrainers && guard < 600) {
+            guard++
+            val x = 3 + rnd.nextInt(size - 6)
+            val y = 6 + rnd.nextInt(size - 12)
+            val t = tileAt(x, y)
+            if (t != Tile.GRASS && t != Tile.TALL && t != Tile.FLOWER && t != Tile.PATH) continue
+            // fuera del pueblo y lejos del punto de aparición
+            if (abs(x - townX) < 7 && y in (townY - 8)..(townY + 6)) continue
+            if (abs(x - spawnX) + abs(y - spawnY) < 5) continue
+            if (npcs.any { abs(it.x - x) + abs(it.y - y) < 3 }) continue
+            val td = genRouteTrainer()
+            routeTrainerDefs.add(td)
+            npcs.add(Npc(x, y, Npc.Kind.TRAINER, td.name, base + routeTrainerDefs.size - 1))
+            placed++
+        }
+
+        // 17. Regalos estilo Pokémon Amarillo (solo en Kanto):
         //     Bulbasaur, Charmander y Squirtle entregados por NPCs del pueblo.
         if (def.id == 0) {
             npcs.add(Npc(townX - 3, townY - 2, Npc.Kind.GIFT, "Chica de las plantas", giftId = 1))

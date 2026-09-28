@@ -22,9 +22,27 @@ mundo abierto por región, portales de distorsión para viajar y estilos de luch
 - **Evoluciones completas**: al alcanzar el nivel indicado, tus Pokémon evolucionan
   (Pikachu → Raichu, Bulbasaur → Ivysaur → Venusaur, Chikorita → Bayleef → Meganium,
   Magikarp → Gyarados, Dreepy → Dragapult, Rookidee → Corviknight, etc.).
-- **45 entrenadores rivales** (5 por región: rival, 2 líderes de gimnasio,
-  Alto Mando y campeón, siguiendo cada entrega), con equipos y recompensas propias;
-  no puedes huir de ellos ni robar sus Pokémon, y recuerdan si ya los venciste.
+- **~140 entrenadores rivales** repartidos según la densidad de cada generación:
+  en cada región hay 5 célebres (rival, 2 líderes, Alto Mando y campeón),
+  el jefe y 2 reclutas del **equipo villano** correspondiente
+  (Rocket, Aqua/Magma, Galaxia, Plasma, Flare, Skull, Yell y Star)
+  y entrenadores de ruta generados según la densidad de la entrega:
+  muchas batallas en Gens 1-5, reducción en Gens 7-9, igual que los juegos originales.
+  No puedes huir de ellos ni robar sus Pokémon, y recuerdan si ya los venciste.
+
+| Región | Juego de referencia | Combates originales | Entrenadores aquí |
+|---|---|---|---|
+| Kanto | FireRed/LeafGreen | ~458 | 16 |
+| Johto | HeartGold/SoulSilver | ~400 | 16 |
+| Hoenn | Emerald | ~350 | 16 |
+| Sinnoh | Platinum | ~700 (con revanchas) | 18 |
+| Unova | Black/White | 412 | 18 |
+| Kalos | X/Y | 377 | 16 |
+| Alola | Ultra Sun/Ultra Moon | ~250 | 14 |
+| Galar | Sword/Shield | ~150 | 13 |
+| Paldea | Scarlet/Violet | ~100-150 | 13 |
+
+(cada región: 5 célebres + jefe villano + 2 reclutas + entrenadores de ruta)
 - **Pokédex** con registro de vistos y capturados (82 especies de las 9 generaciones),
   accesible desde el menú de pausa.
 - **Centro Pokémon** (curación gratuita) y **tienda** en cada pueblo, con dinero ganado en combates.

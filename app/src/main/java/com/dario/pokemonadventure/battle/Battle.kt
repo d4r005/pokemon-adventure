@@ -37,7 +37,7 @@ class Battle(
 
     init {
         if (trainer != null) {
-            queue("¡${trainer.def.title} ${trainer.def.name} quiere luchar!")
+            queue("¡${trainerLabel()} quiere luchar!")
             queue("¡${trainer.def.name} saca a ${enemy.nickname}!")
         } else {
             queue("¡Un ${enemy.nickname} salvaje apareció!")
@@ -55,6 +55,11 @@ class Battle(
         Style.NORMAL -> "Normal"
         Style.AGIL -> "Ágil"
         Style.FUERTE -> "Fuerte"
+    }
+
+    private fun trainerLabel(): String {
+        val d = trainer?.def ?: return ""
+        return if (d.title.isEmpty()) d.name else "${d.title} ${d.name}"
     }
 
     fun queue(text: String) {
@@ -170,7 +175,7 @@ class Battle(
             if (trainer != null) {
                 val reward = trainer.def.reward
                 player.money += reward
-                queue("¡Ganaste el combate contra ${trainer.def.title} ${trainer.def.name}!")
+                queue("¡Ganaste el combate contra ${trainerLabel()}!")
                 queue("Recibiste $$reward por la victoria.")
             } else {
                 player.money += enemy.level * 10 + 30
