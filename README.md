@@ -66,7 +66,27 @@ Para compilar por consola (con el wrapper generado):
 ./gradlew assembleDebug
 ```
 
+## Progresión con tickets de barco
+
+Siguiendo el espíritu de los juegos clásicos, el acceso a las regiones se gana:
+
+1. Empiezas en **Kanto** con Pikachu (Pokémon Amarillo).
+2. Vence los 8+ combates célebres de Kanto, incluida la **Liga Pokémon**
+   (Alto Mando Lorelei y el campeón Rojo).
+3. Al ganar la Liga de Kanto, el **Prof. Oak te entrega el Ticket Johto**.
+4. Al ganar la **Liga de Johto** (Alto Mando Karen y campeón Lance),
+   Oak te entrega los tickets del resto: **Ticket Hoenn, Ticket Sinnoh,
+   Ticket Unova, Ticket Kalos, Ticket Alola, Ticket Galar y Ticket Paldea**.
+
+El selector de regiones muestra qué regiones están bloqueadas y qué ticket
+necesitas. Los tickets se guardan con la partida.
+
 ## Controles
+
+- **Joystick flotante estilo Pokémon GO**: toca cualquier zona libre de la
+  pantalla y arrastra; el joystick aparece bajo tu dedo y el avatar camina en
+  la dirección del arrastre. (También funciona el teclado: WASD / flechas,
+  Enter = A, Esc = menú.)
 
 | Acción | Táctil | Teclado |
 |---|---|---|

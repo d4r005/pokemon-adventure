@@ -102,7 +102,7 @@ object Paints {
 
     fun hpBar(canvas: Canvas, x: Float, y: Float, w: Float, h: Float, ratio: Float) {
         val bg = RectF(x, y, x + w, y + h)
-        canvas.drawRoundRect(bg, h / 2, h / 2, fill(0xFF2E2E38.toInt()))
+        canvas.drawRoundRect(bg, h / 2, h / 2, fill(0xFFE0E0E5.toInt()))
         val r = ratio.coerceIn(0f, 1f)
         if (r > 0f) {
             val color = when {
@@ -116,12 +116,12 @@ object Paints {
     }
 
     fun drawButton(canvas: Canvas, b: UiButton, fh: Float) {
-        val bg = if (b.enabled) 0xCC26303F.toInt() else 0x6626303F.toInt()
-        val r = fh * 0.02f
+        val bg = if (b.enabled) 0xFFF5F5F7.toInt() else 0xFFE3E3E8.toInt()
+        val r = fh * 0.025f
         canvas.drawRoundRect(b.rect, r, r, fill(bg))
-        val border = if (b.enabled) 0x66FFFFFF else 0x33FFFFFF
+        val border = if (b.enabled) 0xFFD9D9E0 else 0xFFC9C9D2
         canvas.drawRoundRect(b.rect, r, r, stroke(border))
-        val labelColor = if (b.enabled) 0xFFFFFFFF.toInt() else 0xFF888888.toInt()
+        val labelColor = if (b.enabled) 0xFF3B4252.toInt() else 0xFF9AA0AE.toInt()
 
         if (b.style == 1) {
             // Tarjeta: icono centrado arriba, textos centrados abajo
@@ -131,7 +131,7 @@ object Paints {
                 fill(if (b.icon != 0 && b.enabled) b.icon else 0xFF555555.toInt()))
             centerText(canvas, b.label, cx, b.rect.top + b.rect.height() * 0.68f, labelColor, fh * 0.035f)
             if (b.sub.isNotEmpty()) {
-                centerText(canvas, b.sub, cx, b.rect.top + b.rect.height() * 0.86f, 0xFFBBBBBB.toInt(), fh * 0.026f)
+                centerText(canvas, b.sub, cx, b.rect.top + b.rect.height() * 0.86f, 0xFF8A8F9E.toInt(), fh * 0.026f)
             }
         } else {
             var tx = b.rect.left + b.rect.height() * 0.12f
@@ -156,7 +156,7 @@ object Paints {
                     isFakeBoldText = true
                 }
                 canvas.drawText(b.label, tx, b.rect.top + b.rect.height() * 0.42f, tp1)
-                leftText(canvas, b.sub, tx, b.rect.top + b.rect.height() * 0.78f, 0xFFBBBBBB.toInt(), fh * 0.024f)
+                leftText(canvas, b.sub, tx, b.rect.top + b.rect.height() * 0.78f, 0xFF8A8F9E.toInt(), fh * 0.024f)
             }
         }
     }
@@ -168,9 +168,9 @@ object Paints {
     fun dialogBox(canvas: Canvas, text: String, w: Float, h: Float) {
         val boxH = h * 0.17f
         val rect = RectF(w * 0.02f, h - boxH - h * 0.02f, w * 0.98f, h - h * 0.02f)
-        canvas.drawRoundRect(rect, h * 0.02f, h * 0.02f, fill(0xEE26303F.toInt()))
-        canvas.drawRoundRect(rect, h * 0.02f, h * 0.02f, stroke(0x66FFFFFF))
-        val tp = text(0xFFFFFFFF.toInt(), h * 0.038f)
+        canvas.drawRoundRect(rect, h * 0.03f, h * 0.03f, fill(0xFFF5F5F7.toInt()))
+        canvas.drawRoundRect(rect, h * 0.03f, h * 0.03f, stroke(0xFFD9D9E0))
+        val tp = text(0xFF3B4252.toInt(), h * 0.038f)
         val lines = wrap(tp, text, rect.width() - h * 0.06f)
         var y = rect.top + h * 0.055f
         for (line in lines.take(3)) {
@@ -178,6 +178,6 @@ object Paints {
             y += h * 0.05f
         }
         // Indicador de continuar
-        centerText(canvas, "▼", rect.right - h * 0.05f, rect.bottom - h * 0.025f, 0xFFAAAAAA.toInt(), h * 0.03f)
+        centerText(canvas, "▼", rect.right - h * 0.05f, rect.bottom - h * 0.025f, 0xFF8A8F9E.toInt(), h * 0.03f)
     }
 }

@@ -36,6 +36,12 @@ class GameEngine(val context: Context) {
 
     var time = 0f
     var dpadDir = -1
+    // Joystick flotante estilo Pokémon GO
+    var joyActive = false
+    var joyBaseX = 0f
+    var joyBaseY = 0f
+    var joyVecX = 0f
+    var joyVecY = 0f
     var encounterCooldown = 2f
     var menuMsg = ""
     var menuMsgT = 0f
@@ -102,7 +108,8 @@ class GameEngine(val context: Context) {
         dialog.addLast("Prof. Oak: ¡Toma este Pikachu! Será tu compañero, igual que en Pokémon Amarillo.")
         dialog.addLast("¡Tu aventura comienza en Kanto!")
         dialog.addLast("En el pueblo hay gente que regala Bulbasaur, Charmander y Squirtle. ¡Búscalos!")
-        dialog.addLast("Muévete con el D-pad y usa el botón A para interactuar.")
+        dialog.addLast("Arrastra el joystick en pantalla para caminar. El botón A interactúa.")
+        dialog.addLast("Gana la Liga de Kanto: el Prof. Oak te dará el Ticket Johto.")
     }
 
     fun loadGame() {
@@ -116,7 +123,18 @@ class GameEngine(val context: Context) {
         encounterCooldown = 2f
     }
 
+    fun hasTicket(index: Int): Boolean =
+        index == 0 || player.tickets.contains("Ticket ${Regions.ALL[index].name}")
+
     fun travel(index: Int) {
+        if (!hasTicket(index)) {
+            screen = Screen.WORLD
+            player.y += 1.2f
+            onPortal = false
+            dialog.clear()
+            dialog.addLast("El barco no zarpa sin boleto... Necesitas el Ticket ${Regions.ALL[index].name}.")
+            return
+        }
         dialog.clear()
         dialog.addLast("El portal de distorsión te envuelve en una luz brillante...")
         enterRegion(index)
@@ -152,11 +170,17 @@ class GameEngine(val context: Context) {
         val m = map ?: return
         var dx = 0f
         var dy = 0f
-        when (dpadDir) {
-            0 -> dy = -1f
-            1 -> dx = 1f
-            2 -> dy = 1f
-            3 -> dx = -1f
+        if (joyActive) {
+            dx = joyVecX
+            dy = joyVecY
+        }
+        if (dx == 0f && dy == 0f) {
+            when (dpadDir) {
+                0 -> dy = -1f
+                1 -> dx = 1f
+                2 -> dy = 1f
+                3 -> dx = -1f
+            }
         }
         if (dx == 0f && dy == 0f) return
 
@@ -257,7 +281,22 @@ class GameEngine(val context: Context) {
                 }
             }
             Battle.Result.WIN -> {
-                b.trainer?.let { player.beatenTrainers.add(it.key) }
+                b.trainer?.let { t ->
+                    player.beatenTrainers.add(t.key)
+                    if (t.key == "0:4" && !player.tickets.contains("Ticket Johto")) {
+                        player.tickets.add("Ticket Johto")
+                        dialog.addLast("Prof. Oak: ¡Ganaste la Liga de Kanto! ¡Enhorabuena, campeón!")
+                        dialog.addLast("Prof. Oak: Toma este TICKET JOHTO. El barco te espera en el portal del norte.")
+                    }
+                    if (t.key == "1:4") {
+                        for (i in 2 until Regions.ALL.size) {
+                            val tn = "Ticket ${Regions.ALL[i].name}"
+                            if (!player.tickets.contains(tn)) player.tickets.add(tn)
+                        }
+                        dialog.addLast("Prof. Oak: ¡Ganaste la Liga de Johto! Eres todo un campeón.")
+                        dialog.addLast("¡Recibiste los tickets de Hoenn, Sinnoh, Unova, Kalos, Alola, Galar y Paldea!")
+                    }
+                }
             }
             Battle.Result.LOSE -> {
                 enterRegion(player.regionIndex)
@@ -328,6 +367,7 @@ class GameEngine(val context: Context) {
             "Los entrenadores rivales no perdonan: ¡no puedes huir de ellos!",
             "Cada Pokémon solo aparece en su región de origen. ¡Visítalas todas!",
             "Aquí en Kanto hay gente que regala Bulbasaur, Charmander y Squirtle.",
+            "Gana la Liga de Kanto y el Prof. Oak te dará el Ticket Johto.",
             "Registra tu progreso en la Pokédex desde el menú de pausa.",
             "Se dice que Arceus aparece en las distorsiones de Sinnoh..."
         )
@@ -353,8 +393,8 @@ class GameEngine(val context: Context) {
     fun handleTouch(action: Int, x: Float, y: Float) {
         when (action) {
             MotionEvent.ACTION_DOWN -> onDown(x, y)
-            MotionEvent.ACTION_MOVE -> if (screen == Screen.WORLD && dialog.isEmpty()) updateDpad(x, y)
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> dpadDir = -1
+            MotionEvent.ACTION_MOVE -> if (joyActive && screen == Screen.WORLD && dialog.isEmpty()) updateJoystick(x, y)
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> endJoystick()
         }
     }
 
@@ -374,7 +414,7 @@ class GameEngine(val context: Context) {
                     if (b.enabled) onUi(b.id)
                     return
                 }
-                updateDpad(x, y)
+                if (dialog.isEmpty()) startJoystick(x, y)
             }
             Screen.BATTLE -> {
                 val b = battle ?: return
@@ -421,28 +461,35 @@ class GameEngine(val context: Context) {
         dpadDir = dir
     }
 
-    private fun updateDpad(x: Float, y: Float) {
-        val cx = lastW * 0.15f
-        val cy = lastH * 0.75f
-        val r = lastH * 0.17f
-        val dx = x - cx
-        val dy = y - cy
-        if (dx * dx + dy * dy > r * r * 3.24f) {
-            dpadDir = -1
-            return
-        }
-        dpadDir = if (abs(dx) > abs(dy)) {
-            if (dx > 0) 1 else 3
-        } else {
-            if (dy > 0) 2 else 0
-        }
+    fun isMoving(): Boolean =
+        (joyActive && (joyVecX != 0f || joyVecY != 0f)) || dpadDir >= 0
+
+    private fun startJoystick(x: Float, y: Float) {
+        joyActive = true
+        joyBaseX = x
+        joyBaseY = y
+        joyVecX = 0f
+        joyVecY = 0f
     }
 
-    fun dpadRect(): RectF {
-        val cx = lastW * 0.15f
-        val cy = lastH * 0.75f
-        val r = lastH * 0.17f
-        return RectF(cx - r, cy - r, cx + r, cy + r)
+    private fun updateJoystick(x: Float, y: Float) {
+        val r = lastH * 0.13f
+        val dx = x - joyBaseX
+        val dy = y - joyBaseY
+        val len = kotlin.math.sqrt(dx * dx + dy * dy)
+        if (len < r * 0.12f) {
+            joyVecX = 0f
+            joyVecY = 0f
+            return
+        }
+        joyVecX = dx / len
+        joyVecY = dy / len
+    }
+
+    private fun endJoystick() {
+        joyActive = false
+        joyVecX = 0f
+        joyVecY = 0f
     }
 
     fun screenW(): Int = lastW
@@ -576,9 +623,13 @@ class GameEngine(val context: Context) {
                     val row = i / 3
                     val x = fw * 0.04f + col * (bw + gapX)
                     val y = fh * 0.12f + row * (bh + gapY)
-                    add(list, "REGION:${r.id}", x, y, bw, bh, r.name,
-                        "Nv. ${r.encounters.minOf { it.minLevel }}-${r.encounters.maxOf { it.maxLevel }}",
-                        icon = r.palette.accent, style = 1)
+                    val unlocked = hasTicket(r.id)
+                    val sub = if (unlocked)
+                        "Nv. ${r.encounters.minOf { it.minLevel }}-${r.encounters.maxOf { it.maxLevel }}"
+                    else
+                        "Necesitas el Ticket ${r.name}"
+                    add(list, "REGION:${r.id}", x, y, bw, bh, r.name, sub,
+                        enabled = unlocked, icon = r.palette.accent, style = 1)
                 }
                 add(list, "REGION_CANCEL", fw * 0.70f, fh * 0.86f, fw * 0.25f, fh * 0.10f, "Cancelar")
             }

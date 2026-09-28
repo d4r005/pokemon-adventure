@@ -1,7 +1,6 @@
 package com.dario.pokemonadventure.ui
 
 import android.graphics.Canvas
-import android.graphics.Path
 import android.graphics.RectF
 import com.dario.pokemonadventure.data.Mon
 import com.dario.pokemonadventure.data.TypeColors
@@ -142,7 +141,7 @@ object WorldRenderer {
     }
 
     private fun drawPlayer(canvas: Canvas, engine: GameEngine, cx: Float, cy: Float, ts: Float, time: Float) {
-        val moving = engine.dpadDir >= 0 && engine.dialog.isEmpty()
+        val moving = engine.isMoving() && engine.dialog.isEmpty()
         val bob = if (moving) sin(time * 12f) * ts * 0.03f else 0f
         val y = cy + bob
         canvas.drawOval(RectF(cx - ts * 0.28f, cy + ts * 0.18f, cx + ts * 0.28f, cy + ts * 0.30f), Paints.fill(0x44000000.toInt()))
@@ -171,8 +170,9 @@ object WorldRenderer {
         // Chip región + dinero
         val chipW = w * 0.24f
         val chip = RectF(w * 0.015f, h * 0.02f, w * 0.015f + chipW, h * 0.02f + h * 0.06f)
-        canvas.drawRoundRect(chip, h * 0.015f, h * 0.015f, Paints.fill(0xBB1B2430.toInt()))
-        Paints.leftText(canvas, "${region.name}  •  $${p.money}", chip.left + w * 0.012f, chip.top + h * 0.043f, 0xFFFFFFFF.toInt(), h * 0.028f)
+        canvas.drawRoundRect(chip, h * 0.015f, h * 0.015f, Paints.fill(0xE6F5F5F7.toInt()))
+        canvas.drawRoundRect(chip, h * 0.015f, h * 0.015f, Paints.stroke(0xFFD9D9E0.toInt()))
+        Paints.leftText(canvas, "${region.name}  •  $${p.money}", chip.left + w * 0.012f, chip.top + h * 0.043f, 0xFF3B4252.toInt(), h * 0.028f)
 
         // Barras del equipo
         var by = chip.bottom + h * 0.015f
@@ -180,37 +180,31 @@ object WorldRenderer {
             val barW = w * 0.14f
             val barH = h * 0.014f
             val rect = RectF(chip.left, by, chip.left + barW + h * 0.05f, by + barH + h * 0.012f)
-            canvas.drawRoundRect(rect, h * 0.01f, h * 0.01f, Paints.fill(if (i == p.activeIndex) 0xBB26303F.toInt() else 0x771B2430.toInt()))
+            canvas.drawRoundRect(rect, h * 0.01f, h * 0.01f, Paints.fill(if (i == p.activeIndex) 0xFFF5F5F7.toInt() else 0x99F5F5F7.toInt()))
             canvas.drawCircle(rect.left + h * 0.018f, rect.centerY(), h * 0.009f, Paints.fill(TypeColors.color(m.species.types[0])))
             Paints.hpBar(canvas, rect.left + h * 0.04f, rect.top + h * 0.007f, barW, barH, m.hp.toFloat() / m.maxHp)
             by += h * 0.030f
         }
         if (p.box > 0) {
-            Paints.leftText(canvas, "Caja: ${p.box}", chip.left, by + h * 0.012f, 0xCCFFFFFF.toInt(), h * 0.022f)
+            Paints.leftText(canvas, "Caja: ${p.box}", chip.left, by + h * 0.012f, 0xFF6B7080.toInt(), h * 0.022f)
         }
 
-        // D-pad
-        val dp = engine.dpadRect()
-        val cx = dp.centerX()
-        val cy = dp.centerY()
-        val r = dp.width() / 2
-        canvas.drawCircle(cx, cy, r, Paints.fill(0x331B2430.toInt()))
-        val dirs = listOf(0, 1, 2, 3)
-        for (d in dirs) {
-            val dx = when (d) { 1 -> r * 0.52f; 3 -> -r * 0.52f; else -> 0f }
-            val dy = when (d) { 0 -> -r * 0.52f; 2 -> r * 0.52f; else -> 0f }
-            val active = engine.dpadDir == d
-            canvas.drawCircle(cx + dx, cy + dy, r * 0.30f, Paints.fill(if (active) 0xAAFFFFFF.toInt() else 0x55FFFFFF.toInt()))
-            val path = Path()
-            val a = r * 0.14f
-            when (d) {
-                0 -> { path.moveTo(cx + dx, cy + dy - a); path.lineTo(cx + dx - a, cy + dy + a * 0.6f); path.lineTo(cx + dx + a, cy + dy + a * 0.6f) }
-                2 -> { path.moveTo(cx + dx, cy + dy + a); path.lineTo(cx + dx - a, cy + dy - a * 0.6f); path.lineTo(cx + dx + a, cy + dy - a * 0.6f) }
-                1 -> { path.moveTo(cx + dx + a, cy + dy); path.lineTo(cx + dx - a * 0.6f, cy + dy - a); path.lineTo(cx + dx - a * 0.6f, cy + dy + a) }
-                3 -> { path.moveTo(cx + dx - a, cy + dy); path.lineTo(cx + dx + a * 0.6f, cy + dy - a); path.lineTo(cx + dx + a * 0.6f, cy + dy + a) }
-            }
-            path.close()
-            canvas.drawPath(path, Paints.fill(if (active) 0xFF1B2430.toInt() else 0xFFDDDDDD.toInt()))
+        // Joystick flotante estilo Pokémon GO
+        if (engine.joyActive) {
+            val jr = h * 0.13f
+            canvas.drawCircle(engine.joyBaseX, engine.joyBaseY, jr, Paints.fill(0x2EFFFFFF.toInt()))
+            canvas.drawCircle(engine.joyBaseX, engine.joyBaseY, jr, Paints.stroke(0xB3FFFFFF.toInt()))
+            val nx = engine.joyBaseX + engine.joyVecX * jr * 0.45f
+            val ny = engine.joyBaseY + engine.joyVecY * jr * 0.45f
+            canvas.drawCircle(nx, ny, jr * 0.42f, Paints.fill(0xE6FFFFFF.toInt()))
+            canvas.drawCircle(nx, ny, jr * 0.42f, Paints.stroke(0x803B4252.toInt()))
+        } else {
+            val cx = w * 0.12f
+            val cy = h * 0.82f
+            val r = h * 0.10f
+            canvas.drawCircle(cx, cy, r, Paints.fill(0x26FFFFFF.toInt()))
+            canvas.drawCircle(cx, cy, r, Paints.stroke(0x80FFFFFF.toInt()))
+            canvas.drawCircle(cx, cy, r * 0.45f, Paints.fill(0x59FFFFFF.toInt()))
         }
     }
 }

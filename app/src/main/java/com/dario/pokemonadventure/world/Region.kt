@@ -36,7 +36,8 @@ data class RegionDef(
 object Regions {
 
     // Cada especie aparece SOLO en su región de origen (9 generaciones).
-    // Densidad de entrenadores de ruta: Gens 1-5 alta, 6 media, 7 reducida, 8-9 baja.
+    // Conteos literales por entrega: Kanto 458, Johto 400, Hoenn 350, Sinnoh 700,
+    // Unova 412, Kalos 377, Alola 250, Galar 154, Paldea 128.
     val ALL: List<RegionDef> = listOf(
 
         // 0. KANTO (1ª generación, FireRed/LeafGreen ~458 combates)
@@ -64,7 +65,10 @@ object Regions {
                 TrainerDef("Giovanni", "", listOf(22 to 9, 46 to 10, 21 to 11), 2000),
                 TrainerDef("Recluta Rocket", "", listOf(24 to 5, 22 to 5), 300),
                 TrainerDef("Recluta Rocket", "", listOf(10 to 5, 18 to 5), 300)
-            ), 450)RegionDef(1, "Johto",
+            ), 450),
+
+        // 1. JOHTO (2ª generación, HeartGold/SoulSilver ~400 combates)
+        RegionDef(1, "Johto",
             Palette(0xFF6FA349.toInt(), 0xFF7FB354.toInt(), 0xFF4E7D2F.toInt(), 0xFFD9C58B.toInt(), 0xFF3E8ED0.toInt(), 0xFF37502E.toInt(), 0xFFB0803C.toInt(), 0xFFE8A33D.toInt()),
             listOf(
                 Encounter(51, 8, 10, 5), Encounter(52, 10, 12, 2), Encounter(53, 12, 13, 1),
@@ -81,7 +85,10 @@ object Regions {
                 TrainerDef("Ejecutiva Rocket", "", listOf(61 to 18, 56 to 18), 2500),
                 TrainerDef("Recluta Rocket", "", listOf(54 to 12, 57 to 12), 500),
                 TrainerDef("Recluta Rocket", "", listOf(51 to 13, 65 to 13), 500)
-            ), 392)RegionDef(2, "Hoenn",
+            ), 392),
+
+        // 2. HOENN (3ª generación, Emerald ~350 combates)
+        RegionDef(2, "Hoenn",
             Palette(0xFF4FB06A.toInt(), 0xFF5DC07A.toInt(), 0xFF2F8C4E.toInt(), 0xFFE0D090.toInt(), 0xFF2BB3C0.toInt(), 0xFF1F7A4D.toInt(), 0xFFD97B29.toInt(), 0xFF17B0C4.toInt()),
             listOf(
                 Encounter(27, 13, 16, 6), Encounter(47, 16, 18, 3), Encounter(28, 18, 19, 1),
@@ -96,7 +103,10 @@ object Regions {
                 TrainerDef("Maxie", "", listOf(63 to 19, 64 to 20, 23 to 18), 2800),
                 TrainerDef("Recluta Aqua", "", listOf(24 to 14, 26 to 15), 700),
                 TrainerDef("Recluta Magma", "", listOf(62 to 15, 63 to 15), 700)
-            ), 342)RegionDef(3, "Sinnoh",
+            ), 342),
+
+        // 3. SINNOH (4ª generación, Platinum ~700 combates con revanchas)
+        RegionDef(3, "Sinnoh",
             Palette(0xFF8FBF9F.toInt(), 0xFF9FCFAF.toInt(), 0xFF6B9B7B.toInt(), 0xFFD5CBA8.toInt(), 0xFF9BC7E8.toInt(), 0xFF4F7F5F.toInt(), 0xFF8A6BB1.toInt(), 0xFFBFE3F2.toInt()),
             listOf(
                 Encounter(31, 19, 22, 8), Encounter(48, 22, 24, 4), Encounter(49, 25, 27, 1),
@@ -113,7 +123,10 @@ object Regions {
                 TrainerDef("Cyrus", "", listOf(49 to 26, 33 to 27, 30 to 26), 3200),
                 TrainerDef("Recluta Galaxia", "", listOf(32 to 21, 31 to 21), 900),
                 TrainerDef("Recluta Galaxia", "", listOf(29 to 22, 50 to 22), 900)
-            ), 692)RegionDef(4, "Unova",
+            ), 692),
+
+        // 4. UNOVA (5ª generación, Black/White 412 combates)
+        RegionDef(4, "Unova",
             Palette(0xFF7FA070.toInt(), 0xFF8BB07C.toInt(), 0xFF5A8050.toInt(), 0xFFC9C2B0.toInt(), 0xFF5F9EA0.toInt(), 0xFF4A6B47.toInt(), 0xFF5F7D8C.toInt(), 0xFF90A4AE.toInt()),
             listOf(
                 Encounter(65, 27, 30, 6), Encounter(66, 31, 34, 1),
@@ -128,7 +141,10 @@ object Regions {
                 TrainerDef("Ghetsis", "", listOf(69 to 34, 66 to 34), 3600),
                 TrainerDef("Recluta del Plasma", "", listOf(65 to 29, 67 to 30), 1100),
                 TrainerDef("Recluta del Plasma", "", listOf(68 to 31, 66 to 31), 1100)
-            ), 404)RegionDef(5, "Kalos",
+            ), 404),
+
+        // 5. KALOS (6ª generación, X/Y 377 combates)
+        RegionDef(5, "Kalos",
             Palette(0xFF7C9E6B.toInt(), 0xFF8AAE79.toInt(), 0xFF58794A.toInt(), 0xFFD9CDB8.toInt(), 0xFF6FA8DC.toInt(), 0xFF4E7A45.toInt(), 0xFFA97BB5.toInt(), 0xFFE8A3D1.toInt()),
             listOf(
                 Encounter(70, 33, 37, 7), Encounter(71, 38, 40, 1),
@@ -143,7 +159,10 @@ object Regions {
                 TrainerDef("Lysandre", "", listOf(73 to 39, 71 to 39, 3 to 38), 4000),
                 TrainerDef("Recluta Flare", "", listOf(70 to 34, 72 to 35), 1300),
                 TrainerDef("Recluta Flare", "", listOf(71 to 37, 73 to 37), 1300)
-            ), 369)RegionDef(6, "Alola",
+            ), 369),
+
+        // 6. ALOLA (7ª generación, USUM ~250 combates)
+        RegionDef(6, "Alola",
             Palette(0xFF63B48A.toInt(), 0xFF74C49A.toInt(), 0xFF3F8F66.toInt(), 0xFFEAD9A8.toInt(), 0xFF2196F3.toInt(), 0xFF2F7D5C.toInt(), 0xFFEF8A5A.toInt(), 0xFFFFD166.toInt()),
             listOf(
                 Encounter(74, 37, 41, 5), Encounter(75, 41, 43, 2), Encounter(76, 44, 45, 1),
@@ -159,7 +178,10 @@ object Regions {
                 TrainerDef("Guzma", "", listOf(35 to 43, 36 to 43, 76 to 44), 4400),
                 TrainerDef("Matón del Team Skull", "", listOf(34 to 40, 36 to 40), 1500),
                 TrainerDef("Matón del Team Skull", "", listOf(11 to 41, 35 to 41), 1500)
-            ), 242)RegionDef(7, "Galar",
+            ), 242),
+
+        // 7. GALAR (8ª generación, Sword/Shield ~154 combates)
+        RegionDef(7, "Galar",
             Palette(0xFF6B8F5E.toInt(), 0xFF7B9F6E.toInt(), 0xFF466A47.toInt(), 0xFFB5A98C.toInt(), 0xFF4C7A8C.toInt(), 0xFF3E5A44.toInt(), 0xFF8A4E6B.toInt(), 0xFF9E7BB5.toInt()),
             listOf(
                 Encounter(37, 41, 44, 7), Encounter(38, 45, 47, 2),
@@ -175,7 +197,10 @@ object Regions {
                 TrainerDef("Oleana", "", listOf(78 to 48, 41 to 49, 40 to 49), 5000),
                 TrainerDef("Seguidor del Team Yell", "", listOf(38 to 45, 37 to 44), 1700),
                 TrainerDef("Seguidor del Team Yell", "", listOf(40 to 46, 77 to 46), 1700)
-            ), 146)RegionDef(8, "Paldea",
+            ), 146),
+
+        // 8. PALDEA (9ª generación, Scarlet/Violet ~100-128 combates, mundo abierto)
+        RegionDef(8, "Paldea",
             Palette(0xFF7BA85A.toInt(), 0xFF8BB86A.toInt(), 0xFF557F3D.toInt(), 0xFFE3CE96.toInt(), 0xFF3E9BD9.toInt(), 0xFF4E7A35.toInt(), 0xFFD97B4A.toInt(), 0xFFFF9E3D.toInt()),
             listOf(
                 Encounter(79, 45, 49, 5), Encounter(80, 50, 52, 2), Encounter(81, 54, 56, 1),
@@ -191,3 +216,51 @@ object Regions {
                 TrainerDef("Recluta del Team Star", "", listOf(82 to 49, 79 to 48), 2000),
                 TrainerDef("Recluta del Team Star", "", listOf(80 to 50, 82 to 51), 2000)
             ), 120)
+    )
+
+    fun kalosIndex(): Int = ALL.indexOfFirst { it.name == "Kalos" }
+}
+
+// ============================================================
+// JUGADOR
+// ============================================================
+
+class Player {
+    var regionIndex: Int = 0 // Kanto, como en Pokémon Amarillo
+    var x = 24.5f
+    var y = 44.5f
+    var facing = 2 // 0 arriba, 1 derecha, 2 abajo, 3 izquierda
+    var money = 3000
+    var box = 0
+    var activeIndex = 0
+    val party = ArrayList<Mon>()
+    val items = LinkedHashMap<String, Int>()
+
+    // Pokédex: especies vistas y capturadas
+    val dexSeen = LinkedHashSet<Int>()
+    val dexCaught = LinkedHashSet<Int>()
+
+    // Claves de entrenadores vencidos ("region:indice")
+    val beatenTrainers = LinkedHashSet<String>()
+
+    // Regalos recibidos ("gift:<speciesId>"), estilo Pokémon Amarillo
+    val giftsReceived = LinkedHashSet<String>()
+
+    // Tickets de barco entregados por el Prof. Oak ("Ticket Johto", ...)
+    val tickets = LinkedHashSet<String>()
+
+    init {
+        items["Poké Ball"] = 10
+        items["Poción"] = 5
+    }
+
+    fun activeMon(): Mon? = party.getOrNull(activeIndex)
+
+    fun anyAlive(): Boolean = party.any { it.hp > 0 }
+
+    fun healAll() {
+        for (m in party) m.hp = m.maxHp
+    }
+
+    fun itemCount(name: String): Int = items[name] ?: 0
+}

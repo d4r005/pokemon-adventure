@@ -33,8 +33,9 @@ object BattleRenderer {
 
         // Panel del rival
         val ePanel = RectF(w * 0.03f, h * 0.04f, w * 0.33f, h * 0.16f)
-        canvas.drawRoundRect(ePanel, h * 0.02f, h * 0.02f, Paints.fill(0xCC26303F.toInt()))
-        Paints.leftText(canvas, "${b.enemy.nickname}  Nv.${b.enemy.level}", ePanel.left + w * 0.015f, ePanel.top + h * 0.05f, 0xFFFFFFFF.toInt(), h * 0.030f)
+        canvas.drawRoundRect(ePanel, h * 0.025f, h * 0.025f, Paints.fill(0xE6F5F5F7.toInt()))
+        canvas.drawRoundRect(ePanel, h * 0.025f, h * 0.025f, Paints.stroke(0xFFD9D9E0.toInt()))
+        Paints.leftText(canvas, "${b.enemy.nickname}  Nv.${b.enemy.level}", ePanel.left + w * 0.015f, ePanel.top + h * 0.05f, 0xFF3B4252.toInt(), h * 0.030f)
         Paints.hpBar(canvas, ePanel.left + w * 0.015f, ePanel.top + h * 0.07f, ePanel.width() - w * 0.03f, h * 0.016f, b.enemy.hp.toFloat() / b.enemy.maxHp)
         if (b.trainer != null) {
             for (i in b.enemyTeam.indices) {
@@ -47,10 +48,11 @@ object BattleRenderer {
 
         // Panel del jugador
         val pPanel = RectF(w * 0.60f, h * 0.58f, w * 0.97f, h * 0.73f)
-        canvas.drawRoundRect(pPanel, h * 0.02f, h * 0.02f, Paints.fill(0xCC26303F.toInt()))
+        canvas.drawRoundRect(pPanel, h * 0.025f, h * 0.025f, Paints.fill(0xE6F5F5F7.toInt()))
+        canvas.drawRoundRect(pPanel, h * 0.025f, h * 0.025f, Paints.stroke(0xFFD9D9E0.toInt()))
         val mine = b.active
-        Paints.leftText(canvas, "${mine.nickname}  Nv.${mine.level}", pPanel.left + w * 0.015f, pPanel.top + h * 0.04f, 0xFFFFFFFF.toInt(), h * 0.030f)
-        Paints.leftText(canvas, "PS ${mine.hp}/${mine.maxHp}", pPanel.left + w * 0.015f, pPanel.bottom - h * 0.015f, 0xFFBBBBBB.toInt(), h * 0.024f)
+        Paints.leftText(canvas, "${mine.nickname}  Nv.${mine.level}", pPanel.left + w * 0.015f, pPanel.top + h * 0.04f, 0xFF3B4252.toInt(), h * 0.030f)
+        Paints.leftText(canvas, "PS ${mine.hp}/${mine.maxHp}", pPanel.left + w * 0.015f, pPanel.bottom - h * 0.015f, 0xFF8A8F9E.toInt(), h * 0.024f)
         Paints.hpBar(canvas, pPanel.left + w * 0.015f, pPanel.top + h * 0.055f, pPanel.width() - w * 0.03f, h * 0.016f, mine.hp.toFloat() / mine.maxHp)
         val expRatio = mine.exp.toFloat() / mine.expToNext().coerceAtLeast(1)
         canvas.drawRect(RectF(pPanel.left + w * 0.015f, pPanel.bottom - h * 0.008f, pPanel.left + w * 0.015f + (pPanel.width() - w * 0.03f) * expRatio.coerceIn(0f, 1f), pPanel.bottom), Paints.fill(0xFF4C8BD9.toInt()))
