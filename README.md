@@ -22,27 +22,28 @@ mundo abierto por región, portales de distorsión para viajar y estilos de luch
 - **Evoluciones completas**: al alcanzar el nivel indicado, tus Pokémon evolucionan
   (Pikachu → Raichu, Bulbasaur → Ivysaur → Venusaur, Chikorita → Bayleef → Meganium,
   Magikarp → Gyarados, Dreepy → Dragapult, Rookidee → Corviknight, etc.).
-- **~140 entrenadores rivales** repartidos según la densidad de cada generación:
-  en cada región hay 5 célebres (rival, 2 líderes, Alto Mando y campeón),
-  el jefe y 2 reclutas del **equipo villano** correspondiente
+- **TODOS los combates de entrenadores**, con el conteo literal de cada entrega
+  (3,229 batallas en total). En cada región hay 5 célebres (rival, 2 líderes,
+  Alto Mando y campeón), el jefe y 2 reclutas del **equipo villano** correspondiente
   (Rocket, Aqua/Magma, Galaxia, Plasma, Flare, Skull, Yell y Star)
-  y entrenadores de ruta generados según la densidad de la entrega:
-  muchas batallas en Gens 1-5, reducción en Gens 7-9, igual que los juegos originales.
+  y **cientos de entrenadores de ruta** repartidos por mapas de 144x144,
+  con niveles que crecen según la distancia al inicio, igual que en los juegos clásicos.
   No puedes huir de ellos ni robar sus Pokémon, y recuerdan si ya los venciste.
 
-| Región | Juego de referencia | Combates originales | Entrenadores aquí |
+| Región | Juego de referencia | Combates originales | Batallas aquí |
 |---|---|---|---|
-| Kanto | FireRed/LeafGreen | ~458 | 16 |
-| Johto | HeartGold/SoulSilver | ~400 | 16 |
-| Hoenn | Emerald | ~350 | 16 |
-| Sinnoh | Platinum | ~700 (con revanchas) | 18 |
-| Unova | Black/White | 412 | 18 |
-| Kalos | X/Y | 377 | 16 |
-| Alola | Ultra Sun/Ultra Moon | ~250 | 14 |
-| Galar | Sword/Shield | ~150 | 13 |
-| Paldea | Scarlet/Violet | ~100-150 | 13 |
+| Kanto | FireRed/LeafGreen | ~458 | **458** |
+| Johto | HeartGold/SoulSilver | ~400 | **400** |
+| Hoenn | Emerald | ~350 | **350** |
+| Sinnoh | Platinum | ~700 (con revanchas) | **700** |
+| Unova | Black/White | 412 | **412** |
+| Kalos | X/Y | 377 | **377** |
+| Alola | Ultra Sun/Ultra Moon | ~250 | **250** |
+| Galar | Sword/Shield | ~150 | **154** |
+| Paldea | Scarlet/Violet | ~100-150 | **128** |
 
-(cada región: 5 célebres + jefe villano + 2 reclutas + entrenadores de ruta)
+(cada región: 5 célebres + jefe villano + 2 reclutas + cientos de entrenadores de ruta,
+generados de forma determinista por región)
 - **Pokédex** con registro de vistos y capturados (82 especies de las 9 generaciones),
   accesible desde el menú de pausa.
 - **Centro Pokémon** (curación gratuita) y **tienda** en cada pueblo, con dinero ganado en combates.

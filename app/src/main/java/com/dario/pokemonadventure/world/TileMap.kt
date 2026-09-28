@@ -28,15 +28,16 @@ class Npc(
 
 class TileMap(val def: RegionDef) {
 
-    val size = 48
+    // Mapas grandes: regiones de verdad para cientos de entrenadores
+    val size = 144
     val tiles = IntArray(size * size)
-    val spawnX = 24
-    val spawnY = 44
-    val townX = 24
-    val townY = 20
+    val townX = size / 2
+    val townY = 48
+    val spawnX = size / 2
+    val spawnY = size - 6
     val npcs = ArrayList<Npc>()
 
-    // Entrenadores: los de la región + los generados de ruta
+    // Entrenadores: los fijos de la región + los generados de ruta
     private val routeTrainerDefs = ArrayList<TrainerDef>()
     val trainers: List<TrainerDef> get() = def.trainers + routeTrainerDefs
 
@@ -71,23 +72,33 @@ class TileMap(val def: RegionDef) {
     companion object {
         private val CLASSES = listOf(
             "Joven", "Señorita", "Escolar", "Pescador", "Montañero",
-            "Campista", "Cazabichos", "Guitarrista", "Escolar", "Runner"
+            "Campista", "Cazabichos", "Guitarrista", "Escolar", "Runner",
+            "Pícnic", "Policía", "Marinero", "Piloto", "Domador",
+            "Químico", "Científico", "Pijama", "Bella", "Ornamentista"
         )
         private val NAMES = listOf(
             "Alex", "Marta", "Iván", "Lucía", "Dani", "Rosa", "Pablo", "Elena",
             "Sergio", "Nadia", "Bruno", "Claudia", "Hugo", "Mía", "Óscar", "Vera",
-            "Teo", "Alma", "Nico", "Iris", "Chema", "Lola"
+            "Teo", "Alma", "Nico", "Iris", "Chema", "Lola", "Jacobo", "Alba",
+            "Iker", "Paola", "Rodri", "Carmen", "Mateo", "Julia", "Axl", "Nora"
         )
     }
 
-    private fun genRouteTrainer(): TrainerDef {
+    /**
+     * Genera un entrenador de ruta. Su nivel escala con la distancia al punto
+     * de aparición: cuanto más lejos, más fuerte, como en los juegos clásicos.
+     */
+    private fun genRouteTrainer(distFactor: Float): TrainerDef {
         val enc = def.encounters
-        val count = 2 + rnd.nextInt(2)
+        val count = 2 + rnd.nextInt(3) // 2-4 Pokémon
         val team = ArrayList<Pair<Int, Int>>()
         var lvlSum = 0
         repeat(count) {
             val e = enc[rnd.nextInt(enc.size)]
-            val lvl = e.minLevel + rnd.nextInt(e.maxLevel - e.minLevel + 1)
+            val span = (e.maxLevel - e.minLevel).coerceAtLeast(0)
+            var lvl = (e.minLevel + span * (0.2f + 0.8f * distFactor)).toInt()
+            lvl += rnd.nextInt(3) - 1
+            lvl = lvl.coerceIn(e.minLevel, e.maxLevel + 2)
             lvlSum += lvl
             team.add(e.speciesId to lvl)
         }
@@ -104,7 +115,7 @@ class TileMap(val def: RegionDef) {
         }
 
         // 2. Flores decorativas
-        repeat(45) {
+        repeat(size * 2) {
             val x = rnd.nextInt(size)
             val y = rnd.nextInt(size)
             if (rnd.nextInt(100) < 40) set(x, y, Tile.FLOWER)
@@ -118,22 +129,22 @@ class TileMap(val def: RegionDef) {
         }
 
         // 4. Bosquecillos
-        repeat(10) {
+        repeat(40) {
             val cx = 4 + rnd.nextInt(size - 8)
             val cy = 4 + rnd.nextInt(size - 8)
-            if (abs(cx - townX) < 9 && cy in 8..30) return@repeat
-            repeat(6) {
-                val x = (cx - 2 + rnd.nextInt(5)).coerceIn(2, size - 3)
-                val y = (cy - 2 + rnd.nextInt(5)).coerceIn(2, size - 3)
+            if (abs(cx - townX) < 12 && cy in (townY - 12)..(townY + 12)) return@repeat
+            repeat(8) {
+                val x = (cx - 3 + rnd.nextInt(7)).coerceIn(2, size - 3)
+                val y = (cy - 3 + rnd.nextInt(7)).coerceIn(2, size - 3)
                 set(x, y, Tile.TREE)
             }
         }
 
-        // 5. Lago
-        run {
-            val cx = 6 + rnd.nextInt(size - 12)
-            val cy = 6 + rnd.nextInt(size - 12)
-            val r = 3 + rnd.nextInt(3)
+        // 5. Lagos
+        repeat(3) {
+            val cx = 8 + rnd.nextInt(size - 16)
+            val cy = 8 + rnd.nextInt(size - 16)
+            val r = 4 + rnd.nextInt(4)
             for (dy in -r..r) {
                 for (dx in -r..r) {
                     if (dx * dx + dy * dy <= r * r) set(cx + dx, cy + dy, Tile.WATER)
@@ -142,10 +153,10 @@ class TileMap(val def: RegionDef) {
         }
 
         // 6. Parches de hierba alta (encuentros)
-        repeat(7) {
+        repeat(26) {
             val cx = 3 + rnd.nextInt(size - 6)
             val cy = 3 + rnd.nextInt(size - 6)
-            val r = 2 + rnd.nextInt(3)
+            val r = 3 + rnd.nextInt(4)
             for (dy in -r..r) {
                 for (dx in -r..r) {
                     if (dx * dx + dy * dy <= r * r) set(cx + dx, cy + dy, Tile.TALL)
@@ -154,7 +165,7 @@ class TileMap(val def: RegionDef) {
         }
 
         // 7. Rocas
-        repeat(18) {
+        repeat(60) {
             set(2 + rnd.nextInt(size - 4), 2 + rnd.nextInt(size - 4), Tile.ROCK)
         }
 
@@ -210,13 +221,13 @@ class TileMap(val def: RegionDef) {
         //     6-7 reclutas villanos en el camino
         val spots = listOf(
             intArrayOf(townX - 1, spawnY - 3),   // 0 rival, junto a la plaza inicial
-            intArrayOf(townX, spawnY - 12),     // 1 líder, mitad del camino
-            intArrayOf(townX + 1, townY + 6),   // 2 líder, entrada del pueblo
-            intArrayOf(townX - 3, townY + 2),   // 3 alto mando, dentro del pueblo
-            intArrayOf(townX - 1, townY - 6),   // 4 campeón, corredor norte
-            intArrayOf(townX + 1, townY - 6),   // 5 jefe villano, corredor norte
-            intArrayOf(townX, spawnY - 6),      // 6 recluta villano
-            intArrayOf(townX, spawnY - 15)      // 7 recluta villano
+            intArrayOf(townX, spawnY - 14),      // 1 líder, mitad del camino
+            intArrayOf(townX + 1, townY + 6),    // 2 líder, entrada del pueblo
+            intArrayOf(townX - 3, townY + 2),    // 3 alto mando, dentro del pueblo
+            intArrayOf(townX - 1, townY - 6),    // 4 campeón, corredor norte
+            intArrayOf(townX + 1, townY - 6),    // 5 jefe villano, corredor norte
+            intArrayOf(townX, spawnY - 6),       // 6 recluta villano
+            intArrayOf(townX, spawnY - 24)      // 7 recluta villano
         )
         for (i in def.trainers.indices) {
             val s = spots[i % spots.size]
@@ -224,21 +235,36 @@ class TileMap(val def: RegionDef) {
             npcs.add(Npc(s[0], s[1], Npc.Kind.TRAINER, def.trainers[i].name, i))
         }
 
-        // 16. Entrenadores de ruta (densidad por generación), colocados en terreno transitable
+        // 16. TODOS los entrenadores de ruta, con el conteo de cada entrega:
+        //     la densidad real de cada generación (Kanto 450, Sinnoh 692, ...).
+        //     Se colocan en terreno transitable, con separación mínima y nivel
+        //     creciente según la distancia al inicio.
         val base = def.trainers.size
+        val total = def.routeTrainers
         var placed = 0
         var guard = 0
-        while (placed < def.routeTrainers && guard < 600) {
+        val maxDist = (size * 1.6f)
+        while (placed < total && guard < 40000) {
             guard++
             val x = 3 + rnd.nextInt(size - 6)
-            val y = 6 + rnd.nextInt(size - 12)
+            val y = 8 + rnd.nextInt(size - 16)
             val t = tileAt(x, y)
             if (t != Tile.GRASS && t != Tile.TALL && t != Tile.FLOWER && t != Tile.PATH) continue
-            // fuera del pueblo y lejos del punto de aparición
-            if (abs(x - townX) < 7 && y in (townY - 8)..(townY + 6)) continue
-            if (abs(x - spawnX) + abs(y - spawnY) < 5) continue
-            if (npcs.any { abs(it.x - x) + abs(it.y - y) < 3 }) continue
-            val td = genRouteTrainer()
+            // fuera del pueblo, del inicio y del portal
+            if (abs(x - townX) < 10 && y in (townY - 11)..(townY + 11)) continue
+            if (abs(x - spawnX) + abs(y - spawnY) < 6) continue
+            if (abs(x - townX) + abs(y - (townY - 8)) < 5) continue
+            // separación mínima con cualquier otro NPC
+            var clash = false
+            for (n in npcs) {
+                if (abs(n.x - x) + abs(n.y - y) < 2) {
+                    clash = true
+                    break
+                }
+            }
+            if (clash) continue
+            val distFactor = ((abs(x - spawnX) + abs(y - spawnY)).toFloat() / maxDist).coerceIn(0f, 1f)
+            val td = genRouteTrainer(distFactor)
             routeTrainerDefs.add(td)
             npcs.add(Npc(x, y, Npc.Kind.TRAINER, td.name, base + routeTrainerDefs.size - 1))
             placed++
