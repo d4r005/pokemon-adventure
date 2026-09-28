@@ -1,6 +1,8 @@
 package com.dario.pokemonadventure.ui
 
+import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Paint
 import android.graphics.RectF
 import com.dario.pokemonadventure.battle.Battle
 import com.dario.pokemonadventure.data.Mon
@@ -20,16 +22,32 @@ object BattleRenderer {
 
         // Cielo y suelo
         canvas.drawColor(Paints.lighten(pal.water, 0.45f))
+        // Sol suave
+        canvas.drawCircle(w * 0.88f, h * 0.10f, h * 0.055f, Paints.fill(0x66FFF6C0.toInt()))
+        canvas.drawCircle(w * 0.88f, h * 0.10f, h * 0.035f, Paints.fill(0xCCFFF6C0.toInt()))
+        // Colinas de fondo
+        val hill = Paints.darken(pal.grass, 0.10f)
+        canvas.drawCircle(w * 0.12f, h * 0.60f, w * 0.17f, Paints.fill(Paints.darken(pal.grass, 0.08f)))
+        canvas.drawCircle(w * 0.88f, h * 0.61f, w * 0.21f, Paints.fill(hill))
+        canvas.drawCircle(w * 0.50f, h * 0.64f, w * 0.24f, Paints.fill(Paints.darken(pal.grass, 0.12f)))
         val ground = RectF(0f, h * 0.55f, w, h)
         canvas.drawRect(ground, Paints.fill(pal.grass))
+        // Franjas de césped
+        for (i in 0..6) {
+            if (i % 2 == 0) {
+                canvas.drawRect(RectF(0f, h * 0.55f + h * 0.07f * i, w, h * 0.55f + h * 0.07f * (i + 1)), Paints.fill(0x14FFFFFF.toInt()))
+            }
+        }
 
         // Plataformas
         canvas.drawOval(RectF(w * 0.62f, h * 0.44f, w * 0.86f, h * 0.50f), Paints.fill(Paints.darken(pal.grass, 0.15f)))
         canvas.drawOval(RectF(w * 0.12f, h * 0.66f, w * 0.44f, h * 0.76f), Paints.fill(Paints.darken(pal.grass, 0.15f)))
 
-        // Pokémon
-        drawMon(canvas, b.enemy, w * 0.74f, h * 0.36f, h * 0.13f, true, b.time)
-        drawMon(canvas, b.active, w * 0.26f, h * 0.64f, h * 0.17f, false, b.time)
+        // Pokémon (sprites IA por tipo)
+        drawMon(canvas, b.enemy, w * 0.74f, h * 0.36f, h * 0.13f, true, b.time,
+            MonSprites.get(engine.context, b.enemy.species.types[0]))
+        drawMon(canvas, b.active, w * 0.26f, h * 0.64f, h * 0.17f, false, b.time,
+            MonSprites.get(engine.context, b.active.species.types[0]))
 
         // Panel del rival
         val ePanel = RectF(w * 0.03f, h * 0.04f, w * 0.33f, h * 0.16f)
@@ -73,10 +91,24 @@ object BattleRenderer {
         }
     }
 
-    fun drawMon(canvas: Canvas, mon: Mon, cx: Float, cy: Float, r: Float, faceLeft: Boolean, time: Float) {
+    private val bmpPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+
+    fun drawMon(canvas: Canvas, mon: Mon, cx: Float, cy: Float, r: Float, faceLeft: Boolean, time: Float, sprite: Bitmap? = null) {
         canvas.drawOval(RectF(cx - r * 1.05f, cy + r * 0.85f, cx + r * 1.05f, cy + r * 1.15f), Paints.fill(0x44000000.toInt()))
         val bob = sin(time * 2.4f) * r * 0.04f
         val y = cy + bob
+        // Sprite IA del tipo; si no existe, se dibuja la criatura procedural
+        if (sprite != null) {
+            val side = r * 2.5f
+            val left = cx - side / 2
+            val top = y - side * 0.62f
+            canvas.drawBitmap(sprite, null, RectF(left, top, left + side, top + side), bmpPaint)
+            // Brillo de estado
+            if (mon.hp <= mon.maxHp / 4) {
+                canvas.drawCircle(cx, y, r * 1.12f, Paints.stroke(0x88E84C3D.toInt()))
+            }
+            return
+        }
         val body = TypeColors.color(mon.species.types[0])
         val dir = if (faceLeft) -1f else 1f
         // Orejas / formas secundarias

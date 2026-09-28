@@ -66,19 +66,25 @@ object WorldRenderer {
         when (tile) {
             Tile.GRASS -> {
                 canvas.drawRoundRect(rect, ts * 0.10f, ts * 0.10f, Paints.fill(if (v == 0) pal.grassAlt else pal.grass))
+                // franjas de césped segado, estilo parque
+                if ((ty / 3) % 2 == 0) canvas.drawRoundRect(rect, ts * 0.10f, ts * 0.10f, Paints.fill(0x14FFFFFF.toInt()))
                 if (v == 3) canvas.drawCircle(sx + ts * 0.5f, sy + ts * 0.5f, ts * 0.06f, Paints.fill(Paints.darken(pal.grass, 0.2f)))
             }
             Tile.TALL -> {
                 canvas.drawRoundRect(rect, ts * 0.10f, ts * 0.10f, Paints.fill(pal.grass))
+                canvas.drawOval(RectF(sx + ts * 0.20f, sy + ts * 0.55f, sx + ts * 0.80f, sy + ts * 0.90f), Paints.fill(0x22000000.toInt()))
                 canvas.drawRoundRect(RectF(sx + ts * 0.15f, sy + ts * 0.25f, sx + ts * 0.85f, sy + ts * 0.95f), ts * 0.18f, ts * 0.18f, Paints.fill(pal.tall))
                 canvas.drawCircle(sx + ts * 0.38f, sy + ts * 0.30f, ts * 0.07f, Paints.fill(Paints.darken(pal.tall, 0.15f)))
                 canvas.drawCircle(sx + ts * 0.62f, sy + ts * 0.45f, ts * 0.07f, Paints.fill(Paints.darken(pal.tall, 0.15f)))
             }
             Tile.TREE -> {
                 canvas.drawRoundRect(rect, ts * 0.10f, ts * 0.10f, Paints.fill(pal.grass))
-                canvas.drawRect(sx + ts * 0.42f, sy + ts * 0.45f, sx + ts * 0.58f, sy + ts * 0.95f, Paints.fill(0xFF6B4A2E.toInt()))
-                canvas.drawCircle(sx + ts * 0.5f, sy + ts * 0.38f, ts * 0.34f, Paints.fill(pal.tree))
-                canvas.drawCircle(sx + ts * 0.42f, sy + ts * 0.30f, ts * 0.16f, Paints.fill(Paints.lighten(pal.tree, 0.2f)))
+                canvas.drawOval(RectF(sx + ts * 0.16f, sy + ts * 0.60f, sx + ts * 0.84f, sy + ts * 0.94f), Paints.fill(0x33000000.toInt()))
+                canvas.drawRect(sx + ts * 0.42f, sy + ts * 0.42f, sx + ts * 0.58f, sy + ts * 0.88f, Paints.fill(0xFF6B4A2E.toInt()))
+                canvas.drawCircle(sx + ts * 0.5f, sy + ts * 0.34f, ts * 0.36f, Paints.fill(pal.tree))
+                canvas.drawCircle(sx + ts * 0.26f, sy + ts * 0.46f, ts * 0.22f, Paints.fill(Paints.darken(pal.tree, 0.10f)))
+                canvas.drawCircle(sx + ts * 0.74f, sy + ts * 0.46f, ts * 0.22f, Paints.fill(Paints.darken(pal.tree, 0.10f)))
+                canvas.drawCircle(sx + ts * 0.42f, sy + ts * 0.26f, ts * 0.16f, Paints.fill(Paints.lighten(pal.tree, 0.2f)))
             }
             Tile.WATER -> {
                 canvas.drawRoundRect(rect, ts * 0.10f, ts * 0.10f, Paints.fill(pal.water))
