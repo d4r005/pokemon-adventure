@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- fondo circular -->
+    <path android:fillColor="#1B1B24" android:pathData="M54,8 A46,46 0 1 1 53.99,8 Z" />
+    <!-- mitad superior roja -->
+    <path android:fillColor="#E84C3D" android:pathData="M10,54 A44,44 0 0 1 98,54 L10,54 Z" />
+    <!-- mitad inferior blanca -->
+    <path android:fillColor="#F5F5F5" android:pathData="M10,54 A44,44 0 0 0 98,54 L10,54 Z" />
+    <!-- banda central -->
+    <path android:fillColor="#1B1B24" android:pathData="M12,49 L96,49 L96,59 L12,59 Z" />
+    <!-- botón central -->
+    <path android:fillColor="#F5F5F5" android:pathData="M54,43 A11,11 0 1 1 53.99,43 Z" />
+    <path android:fillColor="#8A90A8" android:pathData="M54,48 A6,6 0 1 1 53.99,48 Z" />
+</vector>
