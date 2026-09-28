@@ -5,10 +5,15 @@ import com.dario.pokemonadventure.data.Mon
 import com.dario.pokemonadventure.data.Move
 import com.dario.pokemonadventure.data.TypeChart
 import com.dario.pokemonadventure.game.GameEngine
+import com.dario.pokemonadventure.world.TrainerFight
 import kotlin.math.min
 import kotlin.random.Random
 
-class Battle(val engine: GameEngine, val enemy: Mon, val wild: Boolean = true) {
+class Battle(
+    val engine: GameEngine,
+    val enemyTeam: List<Mon>,
+    val trainer: TrainerFight? = null
+) {
 
     enum class Phase { INTRO, ACTION, MOVES, BAG, TEAM, MESSAGE }
     enum class Style { NORMAL, AGIL, FUERTE }
@@ -23,13 +28,22 @@ class Battle(val engine: GameEngine, val enemy: Mon, val wild: Boolean = true) {
     var mustSwitch = false
     var time = 0f
 
+    var enemyIndex = 0
+    val enemy: Mon get() = enemyTeam[enemyIndex]
+    val wild: Boolean get() = trainer == null
+
     private val player get() = engine.player
     val active: Mon get() = player.party[player.activeIndex]
 
     init {
-        messages.addLast("¡Un ${enemy.nickname} salvaje apareció!")
-        if (enemy.species.id == 42) {
-            messages.addLast("¡El guardián de la distorsión te observa con serenidad!")
+        if (trainer != null) {
+            queue("¡${trainer.def.title} ${trainer.def.name} quiere luchar!")
+            queue("¡${trainer.def.name} saca a ${enemy.nickname}!")
+        } else {
+            queue("¡Un ${enemy.nickname} salvaje apareció!")
+            if (enemy.species.id == 42) {
+                queue("¡El guardián de la distorsión te observa con serenidad!")
+            }
         }
     }
 
@@ -141,11 +155,26 @@ class Battle(val engine: GameEngine, val enemy: Mon, val wild: Boolean = true) {
 
     private fun finishTurn() {
         if (enemy.hp <= 0) {
+            // Experiencia por cada rival debilitado
             val exp = enemy.level * 8 + 20
-            queue("¡${enemy.nickname} fue derrotado!")
+            queue("¡El ${enemy.nickname} rival se debilitó!")
             queue("¡${active.nickname} ganó $exp EXP!")
             queueAll(active.gainExp(exp))
-            player.money += enemy.level * 10 + 30
+            engine.dexSee(active.species.id) // registra la forma evolucionada, si cambió
+            if (trainer != null && enemyIndex < enemyTeam.size - 1) {
+                enemyIndex++
+                engine.dexSee(enemy.species.id)
+                queue("¡${trainer.def.name} saca a ${enemy.nickname}!")
+                return
+            }
+            if (trainer != null) {
+                val reward = trainer.def.reward
+                player.money += reward
+                queue("¡Ganaste el combate contra ${trainer.def.title} ${trainer.def.name}!")
+                queue("Recibiste $$reward por la victoria.")
+            } else {
+                player.money += enemy.level * 10 + 30
+            }
             result = Result.WIN
             over = true
             return
@@ -162,6 +191,11 @@ class Battle(val engine: GameEngine, val enemy: Mon, val wild: Boolean = true) {
     }
 
     fun useBall(ballName: String) {
+        if (!wild) {
+            queue("¡No puedes capturar el Pokémon de un entrenador!")
+            phase = Phase.MESSAGE
+            return
+        }
         val count = player.itemCount(ballName)
         if (count <= 0) {
             queue("¡No te quedan $ballName!")
@@ -223,6 +257,11 @@ class Battle(val engine: GameEngine, val enemy: Mon, val wild: Boolean = true) {
     }
 
     fun run() {
+        if (!wild) {
+            queue("¡No puedes escapar de un combate contra un entrenador!")
+            phase = Phase.MESSAGE
+            return
+        }
         phase = Phase.MESSAGE
         val chance = (0.55 + (active.spd - enemy.spd) / 200.0).coerceIn(0.3, 0.95)
         if (Random.nextDouble() < chance) {

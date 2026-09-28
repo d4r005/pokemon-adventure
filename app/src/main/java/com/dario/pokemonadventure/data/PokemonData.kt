@@ -105,50 +105,52 @@ data class Species(
     val baseDef: Int,
     val baseSpd: Int,
     val catchRate: Int,
-    val moves: List<Pair<Int, Move>> // nivel -> movimiento
+    val moves: List<Pair<Int, Move>>, // nivel -> movimiento
+    val evolvesTo: Int? = null,
+    val evolveLevel: Int? = null
 )
 
 object Dex {
     val ALL: List<Species> = listOf(
-        Species(1, "Bulbasaur", listOf("Grass", "Poison"), 45, 49, 49, 45, 45, listOf(1 to Moves.LATIGO_CEPA, 1 to Moves.PLACAJE, 7 to Moves.HOJA_AFILADA, 13 to Moves.BOMBA_LODO, 20 to Moves.RAYO_SOLAR)),
-        Species(2, "Ivysaur", listOf("Grass", "Poison"), 60, 62, 63, 60, 45, listOf(1 to Moves.LATIGO_CEPA, 1 to Moves.PLACAJE, 7 to Moves.HOJA_AFILADA, 15 to Moves.BOMBA_LODO, 24 to Moves.RAYO_SOLAR)),
+        Species(1, "Bulbasaur", listOf("Grass", "Poison"), 45, 49, 49, 45, 45, listOf(1 to Moves.LATIGO_CEPA, 1 to Moves.PLACAJE, 7 to Moves.HOJA_AFILADA, 13 to Moves.BOMBA_LODO, 20 to Moves.RAYO_SOLAR), 2, 16),
+        Species(2, "Ivysaur", listOf("Grass", "Poison"), 60, 62, 63, 60, 45, listOf(1 to Moves.LATIGO_CEPA, 1 to Moves.PLACAJE, 7 to Moves.HOJA_AFILADA, 15 to Moves.BOMBA_LODO, 24 to Moves.RAYO_SOLAR), 3, 32),
         Species(3, "Venusaur", listOf("Grass", "Poison"), 80, 82, 83, 80, 45, listOf(1 to Moves.LATIGO_CEPA, 7 to Moves.HOJA_AFILADA, 15 to Moves.BOMBA_LODO, 24 to Moves.RAYO_SOLAR, 30 to Moves.GOLPE_CUERPO)),
-        Species(4, "Charmander", listOf("Fire"), 39, 52, 43, 65, 45, listOf(1 to Moves.ARANIAZO, 1 to Moves.ASCUAS, 13 to Moves.LANZALLAMAS, 24 to Moves.GOLPE_CUERPO)),
-        Species(5, "Charmeleon", listOf("Fire"), 58, 64, 58, 80, 45, listOf(1 to Moves.ASCUAS, 13 to Moves.LANZALLAMAS, 24 to Moves.GOLPE_CUERPO)),
+        Species(4, "Charmander", listOf("Fire"), 39, 52, 43, 65, 45, listOf(1 to Moves.ARANIAZO, 1 to Moves.ASCUAS, 13 to Moves.LANZALLAMAS, 24 to Moves.GOLPE_CUERPO), 5, 16),
+        Species(5, "Charmeleon", listOf("Fire"), 58, 64, 58, 80, 45, listOf(1 to Moves.ASCUAS, 13 to Moves.LANZALLAMAS, 24 to Moves.GOLPE_CUERPO), 6, 36),
         Species(6, "Charizard", listOf("Fire", "Flying"), 78, 84, 78, 100, 45, listOf(1 to Moves.ASCUAS, 13 to Moves.LANZALLAMAS, 24 to Moves.ATAQUE_ALA, 30 to Moves.GOLPE_CUERPO)),
-        Species(7, "Squirtle", listOf("Water"), 44, 48, 65, 43, 45, listOf(1 to Moves.PLACAJE, 1 to Moves.ASPERSOR, 13 to Moves.SURF, 24 to Moves.HIDROBOMBA)),
-        Species(8, "Wartortle", listOf("Water"), 59, 63, 80, 58, 45, listOf(1 to Moves.ASPERSOR, 13 to Moves.SURF, 24 to Moves.HIDROBOMBA)),
+        Species(7, "Squirtle", listOf("Water"), 44, 48, 65, 43, 45, listOf(1 to Moves.PLACAJE, 1 to Moves.ASPERSOR, 13 to Moves.SURF, 24 to Moves.HIDROBOMBA), 8, 16),
+        Species(8, "Wartortle", listOf("Water"), 59, 63, 80, 58, 45, listOf(1 to Moves.ASPERSOR, 13 to Moves.SURF, 24 to Moves.HIDROBOMBA), 9, 36),
         Species(9, "Blastoise", listOf("Water"), 79, 83, 100, 78, 45, listOf(1 to Moves.ASPERSOR, 13 to Moves.SURF, 24 to Moves.HIDROBOMBA)),
         Species(10, "Pikachu", listOf("Electric"), 35, 55, 40, 90, 190, listOf(1 to Moves.IMPACTRUENO, 1 to Moves.PLACAJE, 10 to Moves.AT_RAPIDO, 16 to Moves.RAYO, 26 to Moves.TRUENO)),
         Species(11, "Eevee", listOf("Normal"), 55, 55, 50, 55, 45, listOf(1 to Moves.PLACAJE, 1 to Moves.AT_RAPIDO, 8 to Moves.MORDISCO, 15 to Moves.GOLPE_CUERPO)),
         Species(12, "Jolteon", listOf("Electric"), 65, 65, 60, 130, 45, listOf(1 to Moves.IMPACTRUENO, 13 to Moves.RAYO, 26 to Moves.TRUENO)),
         Species(13, "Vaporeon", listOf("Water"), 130, 65, 60, 65, 45, listOf(1 to Moves.ASPERSOR, 13 to Moves.SURF, 26 to Moves.HIDROBOMBA)),
         Species(14, "Flareon", listOf("Fire"), 65, 130, 60, 65, 45, listOf(1 to Moves.ASCUAS, 13 to Moves.LANZALLAMAS, 26 to Moves.GOLPE_CUERPO)),
-        Species(15, "Gastly", listOf("Ghost", "Poison"), 30, 35, 30, 80, 190, listOf(1 to Moves.LENGUETAZO, 5 to Moves.BOLA_SOMBRA, 12 to Moves.CONFUSION)),
-        Species(16, "Haunter", listOf("Ghost", "Poison"), 45, 50, 45, 95, 90, listOf(1 to Moves.LENGUETAZO, 5 to Moves.BOLA_SOMBRA, 20 to Moves.PSIQUICO)),
+        Species(15, "Gastly", listOf("Ghost", "Poison"), 30, 35, 30, 80, 190, listOf(1 to Moves.LENGUETAZO, 5 to Moves.BOLA_SOMBRA, 12 to Moves.CONFUSION), 16, 25),
+        Species(16, "Haunter", listOf("Ghost", "Poison"), 45, 50, 45, 95, 90, listOf(1 to Moves.LENGUETAZO, 5 to Moves.BOLA_SOMBRA, 20 to Moves.PSIQUICO), 17, 38),
         Species(17, "Gengar", listOf("Ghost", "Poison"), 60, 65, 60, 110, 45, listOf(1 to Moves.LENGUETAZO, 5 to Moves.BOLA_SOMBRA, 20 to Moves.PSIQUICO, 30 to Moves.BOMBA_LODO)),
-        Species(18, "Abra", listOf("Psychic"), 25, 20, 15, 90, 200, listOf(1 to Moves.CONFUSION, 16 to Moves.PSIQUICO)),
+        Species(18, "Abra", listOf("Psychic"), 25, 20, 15, 90, 200, listOf(1 to Moves.CONFUSION, 16 to Moves.PSIQUICO), 19, 16),
         Species(19, "Alakazam", listOf("Psychic"), 55, 50, 45, 120, 50, listOf(1 to Moves.CONFUSION, 16 to Moves.PSIQUICO)),
-        Species(20, "Machop", listOf("Fighting"), 70, 80, 50, 35, 180, listOf(1 to Moves.GOLPE_KARATE, 7 to Moves.AT_RAPIDO, 19 to Moves.GOLPE_CUERPO)),
+        Species(20, "Machop", listOf("Fighting"), 70, 80, 50, 35, 180, listOf(1 to Moves.GOLPE_KARATE, 7 to Moves.AT_RAPIDO, 19 to Moves.GOLPE_CUERPO), 21, 28),
         Species(21, "Machamp", listOf("Fighting"), 90, 130, 80, 55, 45, listOf(1 to Moves.GOLPE_KARATE, 7 to Moves.AT_RAPIDO, 19 to Moves.GOLPE_CUERPO)),
-        Species(22, "Geodude", listOf("Rock", "Ground"), 40, 80, 100, 20, 255, listOf(1 to Moves.PLACAJE, 6 to Moves.LANZA_ROCAS, 11 to Moves.TERREMOTO)),
+        Species(22, "Geodude", listOf("Rock", "Ground"), 40, 80, 100, 20, 255, listOf(1 to Moves.PLACAJE, 6 to Moves.LANZA_ROCAS, 11 to Moves.TERREMOTO), 23, 25),
         Species(23, "Golem", listOf("Rock", "Ground"), 80, 120, 130, 45, 45, listOf(1 to Moves.LANZA_ROCAS, 11 to Moves.TERREMOTO, 20 to Moves.GOLPE_CUERPO)),
-        Species(24, "Magikarp", listOf("Water"), 20, 10, 55, 80, 255, listOf(1 to Moves.PLACAJE)),
+        Species(24, "Magikarp", listOf("Water"), 20, 10, 55, 80, 255, listOf(1 to Moves.PLACAJE), 25, 20),
         Species(25, "Gyarados", listOf("Water", "Flying"), 95, 125, 79, 81, 45, listOf(1 to Moves.MORDISCO, 20 to Moves.HIDROBOMBA, 25 to Moves.GOLPE_CUERPO, 30 to Moves.ATAQUE_ALA)),
         Species(26, "Lapras", listOf("Water", "Ice"), 130, 85, 80, 60, 45, listOf(1 to Moves.ASPERSOR, 1 to Moves.VIENTO_HIELO, 20 to Moves.SURF, 28 to Moves.RAYO_HIELO)),
-        Species(27, "Ralts", listOf("Psychic", "Fairy"), 28, 25, 25, 40, 235, listOf(1 to Moves.CONFUSION, 23 to Moves.BRILLO_MAGICO, 30 to Moves.PSIQUICO)),
+        Species(27, "Ralts", listOf("Psychic", "Fairy"), 28, 25, 25, 40, 235, listOf(1 to Moves.CONFUSION, 23 to Moves.BRILLO_MAGICO, 30 to Moves.PSIQUICO), 28, 30),
         Species(28, "Gardevoir", listOf("Psychic", "Fairy"), 68, 65, 65, 80, 45, listOf(1 to Moves.CONFUSION, 23 to Moves.BRILLO_MAGICO, 30 to Moves.PSIQUICO)),
-        Species(29, "Riolu", listOf("Fighting"), 40, 70, 40, 60, 75, listOf(1 to Moves.GOLPE_KARATE, 15 to Moves.AT_RAPIDO)),
+        Species(29, "Riolu", listOf("Fighting"), 40, 70, 40, 60, 75, listOf(1 to Moves.GOLPE_KARATE, 15 to Moves.AT_RAPIDO), 30, 25),
         Species(30, "Lucario", listOf("Fighting", "Steel"), 70, 110, 70, 90, 45, listOf(1 to Moves.GOLPE_KARATE, 15 to Moves.PUNO_HIELO, 19 to Moves.GARRA_METAL, 25 to Moves.GOLPE_CUERPO)),
         Species(31, "Starly", listOf("Normal", "Flying"), 40, 55, 30, 60, 255, listOf(1 to Moves.PICOTAZO, 9 to Moves.ATAQUE_ALA)),
-        Species(32, "Shinx", listOf("Electric"), 45, 65, 34, 45, 235, listOf(1 to Moves.IMPACTRUENO, 9 to Moves.AT_RAPIDO, 18 to Moves.RAYO)),
+        Species(32, "Shinx", listOf("Electric"), 45, 65, 34, 45, 235, listOf(1 to Moves.IMPACTRUENO, 9 to Moves.AT_RAPIDO, 18 to Moves.RAYO), 33, 30),
         Species(33, "Luxray", listOf("Electric"), 80, 120, 79, 70, 45, listOf(1 to Moves.IMPACTRUENO, 18 to Moves.RAYO, 28 to Moves.TRUENO)),
-        Species(34, "Rockruff", listOf("Rock"), 45, 65, 40, 60, 190, listOf(1 to Moves.ARANIAZO, 8 to Moves.AT_RAPIDO, 16 to Moves.MORDISCO)),
+        Species(34, "Rockruff", listOf("Rock"), 45, 65, 40, 60, 190, listOf(1 to Moves.ARANIAZO, 8 to Moves.AT_RAPIDO, 16 to Moves.MORDISCO), 35, 25),
         Species(35, "Lycanroc", listOf("Rock"), 75, 115, 65, 112, 90, listOf(1 to Moves.ARANIAZO, 16 to Moves.AVALANCHA, 24 to Moves.GOLPE_CUERPO)),
         Species(36, "Mimikyu", listOf("Ghost", "Fairy"), 55, 90, 80, 96, 45, listOf(1 to Moves.LENGUETAZO, 14 to Moves.BOLA_SOMBRA, 22 to Moves.BRILLO_MAGICO)),
-        Species(37, "Wooloo", listOf("Normal"), 42, 40, 55, 48, 255, listOf(1 to Moves.PLACAJE, 8 to Moves.AT_RAPIDO)),
+        Species(37, "Wooloo", listOf("Normal"), 42, 40, 55, 48, 255, listOf(1 to Moves.PLACAJE, 8 to Moves.AT_RAPIDO), 38, 24),
         Species(38, "Dubwool", listOf("Normal"), 72, 80, 100, 88, 127, listOf(1 to Moves.PLACAJE, 12 to Moves.GOLPE_CUERPO, 20 to Moves.AT_RAPIDO)),
-        Species(39, "Dreepy", listOf("Dragon", "Ghost"), 28, 60, 30, 82, 45, listOf(1 to Moves.ALIENTO_DRAGON, 16 to Moves.BOLA_SOMBRA)),
+        Species(39, "Dreepy", listOf("Dragon", "Ghost"), 28, 60, 30, 82, 45, listOf(1 to Moves.ALIENTO_DRAGON, 16 to Moves.BOLA_SOMBRA), 40, 50),
         Species(40, "Dragapult", listOf("Dragon", "Ghost"), 88, 120, 75, 142, 45, listOf(1 to Moves.ALIENTO_DRAGON, 16 to Moves.BOLA_SOMBRA, 28 to Moves.ATAQUE_ALA)),
         Species(41, "Corviknight", listOf("Flying", "Steel"), 98, 87, 105, 67, 45, listOf(1 to Moves.PICOTAZO, 12 to Moves.ATAQUE_ALA, 24 to Moves.GARRA_METAL)),
         Species(42, "Arceus", listOf("Normal"), 120, 120, 120, 120, 3, listOf(1 to Moves.SENTENCIA, 10 to Moves.RAYO_SOLAR, 20 to Moves.PSIQUICO, 30 to Moves.TERREMOTO))
@@ -162,7 +164,7 @@ object Dex {
 // ============================================================
 
 class Mon(
-    val species: Species,
+    var species: Species,
     var level: Int,
     var exp: Int = 0,
     var nickname: String = species.name
@@ -204,6 +206,17 @@ class Mon(
             for ((lvl, mv) in species.moves) {
                 if (lvl == level) msgs.add("¡$nickname aprendió ${mv.name}!")
             }
+        }
+        // Evolución
+        val evoTo = species.evolvesTo
+        val evoLvl = species.evolveLevel
+        if (evoTo != null && evoLvl != null && level >= evoLvl) {
+            val newSp = Dex.byId(evoTo)
+            msgs.add("¡¿Eh?! ¡$nickname está evolucionando!")
+            if (nickname == species.name) nickname = newSp.name
+            species = newSp
+            recalcStats(false)
+            msgs.add("¡Se convirtió en ${newSp.name}!")
         }
         return msgs
     }

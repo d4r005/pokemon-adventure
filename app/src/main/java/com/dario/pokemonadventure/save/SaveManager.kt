@@ -2,6 +2,7 @@ package com.dario.pokemonadventure.save
 
 import android.content.Context
 import com.dario.pokemonadventure.data.Dex
+import com.dario.pokemonadventure.data.Mon
 import com.dario.pokemonadventure.world.Player
 import org.json.JSONArray
 import org.json.JSONObject
@@ -25,9 +26,11 @@ object SaveManager {
         root.put("money", p.money)
         root.put("box", p.box)
         root.put("active", p.activeIndex)
+
         val items = JSONObject()
         for ((k, v) in p.items) items.put(k, v)
         root.put("items", items)
+
         val party = JSONArray()
         for (m in p.party) {
             val o = JSONObject()
@@ -39,6 +42,19 @@ object SaveManager {
             party.put(o)
         }
         root.put("party", party)
+
+        val seen = JSONArray()
+        for (id in p.dexSeen) seen.put(id)
+        root.put("dexSeen", seen)
+
+        val caught = JSONArray()
+        for (id in p.dexCaught) caught.put(id)
+        root.put("dexCaught", caught)
+
+        val beaten = JSONArray()
+        for (k in p.beatenTrainers) beaten.put(k)
+        root.put("beaten", beaten)
+
         prefs(context).edit().putString(KEY, root.toString()).apply()
     }
 
@@ -54,6 +70,7 @@ object SaveManager {
             p.money = root.getInt("money")
             p.box = root.getInt("box")
             p.activeIndex = root.getInt("active")
+
             p.items.clear()
             val items = root.getJSONObject("items")
             var it = items.keys()
@@ -61,10 +78,11 @@ object SaveManager {
                 val k = it.next()
                 p.items[k] = items.getInt(k)
             }
+
             val party = root.getJSONArray("party")
             for (i in 0 until party.length()) {
                 val o = party.getJSONObject(i)
-                val mon = com.dario.pokemonadventure.data.Mon(
+                val mon = Mon(
                     Dex.byId(o.getInt("id")),
                     o.getInt("lvl"),
                     o.getInt("exp"),
@@ -73,6 +91,25 @@ object SaveManager {
                 mon.hp = o.getInt("hp")
                 p.party.add(mon)
             }
+
+            p.dexSeen.clear()
+            val seen = root.optJSONArray("dexSeen")
+            if (seen != null) {
+                for (i in 0 until seen.length()) p.dexSeen.add(seen.getInt(i))
+            }
+
+            p.dexCaught.clear()
+            val caught = root.optJSONArray("dexCaught")
+            if (caught != null) {
+                for (i in 0 until caught.length()) p.dexCaught.add(caught.getInt(i))
+            }
+
+            p.beatenTrainers.clear()
+            val beaten = root.optJSONArray("beaten")
+            if (beaten != null) {
+                for (i in 0 until beaten.length()) p.beatenTrainers.add(beaten.getString(i))
+            }
+
             p
         } catch (e: Exception) {
             null

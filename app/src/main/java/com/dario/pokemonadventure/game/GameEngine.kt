@@ -7,6 +7,7 @@ import com.dario.pokemonadventure.battle.Battle
 import com.dario.pokemonadventure.data.Dex
 import com.dario.pokemonadventure.data.Items
 import com.dario.pokemonadventure.data.Mon
+import com.dario.pokemonadventure.data.TypeColors
 import com.dario.pokemonadventure.save.SaveManager
 import com.dario.pokemonadventure.ui.UiButton
 import com.dario.pokemonadventure.world.Npc
@@ -14,11 +15,12 @@ import com.dario.pokemonadventure.world.Player
 import com.dario.pokemonadventure.world.Regions
 import com.dario.pokemonadventure.world.Tile
 import com.dario.pokemonadventure.world.TileMap
+import com.dario.pokemonadventure.world.TrainerFight
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.random.Random
 
-enum class Screen { TITLE, STARTER, WORLD, BATTLE, MENU, TEAM, SHOP, REGION }
+enum class Screen { TITLE, STARTER, WORLD, BATTLE, MENU, TEAM, SHOP, REGION, DEX }
 
 class GameEngine(val context: Context) {
 
@@ -39,8 +41,10 @@ class GameEngine(val context: Context) {
     var menuMsgT = 0f
     var shopMsg = ""
     var shopMsgT = 0f
+    var dexPage = 0
     var lastSaveExists = SaveManager.exists(context)
     private var onPortal = false
+    private var pendingTrainer = -1
 
     private var lastW = 1
     private var lastH = 1
@@ -65,6 +69,19 @@ class GameEngine(val context: Context) {
     }
 
     // ---------------------------------------------------------
+    // Pokédex
+    // ---------------------------------------------------------
+
+    fun dexSee(id: Int) {
+        player.dexSeen.add(id)
+    }
+
+    fun dexCatch(id: Int) {
+        player.dexSeen.add(id)
+        player.dexCaught.add(id)
+    }
+
+    // ---------------------------------------------------------
     // Ciclo de vida del juego
     // ---------------------------------------------------------
 
@@ -73,12 +90,14 @@ class GameEngine(val context: Context) {
         val starter = Mon(Dex.byId(starterId), 5)
         player.party.add(starter)
         player.activeIndex = 0
+        dexCatch(starterId)
         enterRegion(Regions.kalosIndex())
         screen = Screen.WORLD
         dialog.clear()
         dialog.addLast("¡Bienvenido a Kalos, entrenador!")
         dialog.addLast("Los portales de distorsión conectan todas las regiones. ¡Explóralas!")
         dialog.addLast("Muévete con el D-pad y usa el botón A para interactuar.")
+        dialog.addLast("Cada región tiene dos entrenadores rivales esperándote.")
     }
 
     fun loadGame() {
@@ -118,6 +137,12 @@ class GameEngine(val context: Context) {
 
     private fun updateWorld(dt: Float) {
         if (dialog.isNotEmpty()) return
+        if (pendingTrainer >= 0) {
+            val idx = pendingTrainer
+            pendingTrainer = -1
+            startTrainerBattle(idx)
+            return
+        }
         val p = player
         val m = map ?: return
         var dx = 0f
@@ -191,7 +216,21 @@ class GameEngine(val context: Context) {
         }
         val lvl = Random.nextInt(pick.minLevel, pick.maxLevel + 1)
         val mon = Mon(Dex.byId(pick.speciesId), lvl)
-        battle = Battle(this, mon)
+        dexSee(mon.species.id)
+        battle = Battle(this, listOf(mon), null)
+        screen = Screen.BATTLE
+    }
+
+    private fun startTrainerBattle(idx: Int) {
+        val m = map ?: return
+        if (!player.anyAlive()) return
+        if ((player.party.getOrNull(player.activeIndex)?.hp ?: 0) <= 0) {
+            player.activeIndex = player.party.indexOfFirst { it.hp > 0 }
+        }
+        val def = m.trainers.getOrNull(idx) ?: return
+        val team = def.team.map { Mon(Dex.byId(it.first), it.second) }
+        for (t in team) dexSee(t.species.id)
+        battle = Battle(this, team, TrainerFight(def, "${m.def.id}:$idx"))
         screen = Screen.BATTLE
     }
 
@@ -202,6 +241,7 @@ class GameEngine(val context: Context) {
             Battle.Result.CATCH -> {
                 val mon = b.caughtMon
                 if (mon != null) {
+                    dexCatch(mon.species.id)
                     if (player.party.size < 6) {
                         player.party.add(mon)
                         dialog.addLast("¡${mon.nickname} se unió a tu equipo!")
@@ -210,6 +250,9 @@ class GameEngine(val context: Context) {
                         dialog.addLast("¡Tu equipo está lleno! ${mon.nickname} fue enviado a la caja.")
                     }
                 }
+            }
+            Battle.Result.WIN -> {
+                b.trainer?.let { player.beatenTrainers.add(it.key) }
             }
             Battle.Result.LOSE -> {
                 enterRegion(player.regionIndex)
@@ -236,6 +279,19 @@ class GameEngine(val context: Context) {
             }
             Npc.Kind.SHOP -> screen = Screen.SHOP
             Npc.Kind.GUIDE -> dialog.addLast("${npc.name}: ${guideTip()}")
+            Npc.Kind.TRAINER -> {
+                val idx = npc.trainerIndex
+                val t = m.trainers.getOrNull(idx) ?: return
+                val key = "${m.def.id}:$idx"
+                if (player.beatenTrainers.contains(key)) {
+                    dialog.addLast("${t.title} ${t.name}: ¡Buen combate! Vuelve cuando quieras la revancha.")
+                } else if (player.anyAlive()) {
+                    dialog.addLast("¡${t.title} ${t.name} te desafía a un combate!")
+                    pendingTrainer = idx
+                } else {
+                    dialog.addLast("Tu equipo está debilitado... Ve primero al Centro Pokémon.")
+                }
+            }
         }
     }
 
@@ -245,8 +301,9 @@ class GameEngine(val context: Context) {
             "Los portales de distorsión están al norte de cada pueblo.",
             "El estilo Ágil te deja actuar primero, pero golpea más suave.",
             "El estilo Fuerte pega con todo, pero actuarás al final del turno.",
-            "Los Pokémon de regiones lejanas son más fuertes. ¡Prepara a tu equipo!",
-            "La Enfermera Joy cura tu equipo gratis. ¡Úsala sin miedo!",
+            "Los entrenadores rivales no perdonan: ¡no puedes huir de ellos!",
+            "Los Pokémon suben de nivel con experiencia y algunos evolucionan.",
+            "Registra tu progreso en la Pokédex desde el menú de pausa.",
             "Se dice que Arceus aparece en las distorsiones más raras..."
         )
         return tips[Random.nextInt(tips.size)]
@@ -403,6 +460,10 @@ class GameEngine(val context: Context) {
                     menuMsgT = 2f
                 }
                 "TEAMVIEW" -> screen = Screen.TEAM
+                "POKEDEX" -> {
+                    dexPage = 0
+                    screen = Screen.DEX
+                }
                 "QUIT" -> {
                     screen = Screen.TITLE
                     battle = null
@@ -424,6 +485,11 @@ class GameEngine(val context: Context) {
             Screen.SHOP -> when {
                 id.startsWith("BUY:") -> buy(id.substringAfter("BUY:"))
                 id == "SHOP_CLOSE" -> screen = Screen.WORLD
+            }
+            Screen.DEX -> when (id) {
+                "DEX_PREV" -> dexPage--
+                "DEX_NEXT" -> dexPage++
+                "VOLVER" -> screen = Screen.MENU
             }
             Screen.BATTLE -> {
                 val b = battle ?: return
@@ -489,7 +555,7 @@ class GameEngine(val context: Context) {
                 for (i in listOf(1, 4, 7).withIndex()) {
                     val sp = Dex.byId(i.value)
                     add(list, "STARTER:${i.value}", x0 + i.index * (bw + gap), fh * 0.28f, bw, bh,
-                        sp.name, sp.types.joinToString(" / "), icon = com.dario.pokemonadventure.data.TypeColors.color(sp.types[0]), style = 1)
+                        sp.name, sp.types.joinToString(" / "), icon = TypeColors.color(sp.types[0]), style = 1)
                 }
             }
             Screen.REGION -> {
@@ -512,10 +578,11 @@ class GameEngine(val context: Context) {
                 val bw = fw * 0.30f
                 val bh = fh * 0.11f
                 val x = fw * 0.35f
-                add(list, "RESUME", x, fh * 0.14f, bw, bh, "Reanudar")
-                add(list, "SAVE", x, fh * 0.30f, bw, bh, "Guardar partida")
-                add(list, "TEAMVIEW", x, fh * 0.46f, bw, bh, "Ver equipo")
-                add(list, "QUIT", x, fh * 0.62f, bw, bh, "Volver al título")
+                add(list, "RESUME", x, fh * 0.08f, bw, bh, "Reanudar")
+                add(list, "POKEDEX", x, fh * 0.22f, bw, bh, "Pokédex")
+                add(list, "TEAMVIEW", x, fh * 0.36f, bw, bh, "Ver equipo")
+                add(list, "SAVE", x, fh * 0.50f, bw, bh, "Guardar partida")
+                add(list, "QUIT", x, fh * 0.64f, bw, bh, "Volver al título")
             }
             Screen.TEAM -> {
                 val bw = fw * 0.44f
@@ -525,7 +592,7 @@ class GameEngine(val context: Context) {
                     add(list, "MON:$i", x, fh * 0.06f + i * (bh + fh * 0.02f), bw, bh,
                         "${m.nickname}  Nv.${m.level}",
                         "PS ${m.hp}/${m.maxHp}${if (i == player.activeIndex) "  (activo)" else ""}",
-                        enabled = m.hp > 0, icon = com.dario.pokemonadventure.data.TypeColors.color(m.species.types[0]))
+                        enabled = m.hp > 0, icon = TypeColors.color(m.species.types[0]))
                 }
                 add(list, "VOLVER", fw * 0.60f, fh * 0.85f, fw * 0.25f, fh * 0.10f, "Volver")
             }
@@ -541,6 +608,32 @@ class GameEngine(val context: Context) {
                 }
                 add(list, "SHOP_CLOSE", fw * 0.60f, fh * 0.85f, fw * 0.25f, fh * 0.10f, "Salir")
             }
+            Screen.DEX -> {
+                val perPage = 6
+                val total = Dex.ALL.size
+                val pages = (total + perPage - 1) / perPage
+                dexPage = dexPage.coerceIn(0, pages - 1)
+                for (i in 0 until perPage) {
+                    val idx = dexPage * perPage + i
+                    if (idx >= total) break
+                    val sp = Dex.ALL[idx]
+                    val seen = player.dexSeen.contains(sp.id)
+                    val caught = player.dexCaught.contains(sp.id)
+                    val label = if (seen) String.format("%03d  %s", idx + 1, sp.name)
+                                else String.format("%03d  ???", idx + 1)
+                    val sub = when {
+                        caught -> "Capturado"
+                        seen -> "Visto"
+                        else -> "Sin datos"
+                    }
+                    val icon = if (seen) TypeColors.color(sp.types[0]) else 0xFF555555.toInt()
+                    add(list, "DEX:$idx", fw * 0.05f, fh * 0.12f + i * fh * 0.125f, fw * 0.40f, fh * 0.11f,
+                        label, sub, enabled = true, icon = icon)
+                }
+                add(list, "DEX_PREV", fw * 0.05f, fh * 0.86f, fw * 0.15f, fh * 0.09f, "◀ Anterior")
+                add(list, "DEX_NEXT", fw * 0.22f, fh * 0.86f, fw * 0.15f, fh * 0.09f, "Siguiente ▶")
+                add(list, "VOLVER", fw * 0.60f, fh * 0.86f, fw * 0.25f, fh * 0.10f, "Volver")
+            }
             Screen.BATTLE -> {
                 val b = battle ?: return
                 val bw = fw * 0.19f
@@ -552,21 +645,23 @@ class GameEngine(val context: Context) {
                         add(list, "LUCHAR", bx, fh * 0.28f, bw, bh, "Luchar")
                         add(list, "BOLSA", bx + bw * 1.25f, fh * 0.28f, bw, bh, "Bolsa")
                         add(list, "EQUIPO", bx, fh * 0.42f, bw, bh, "Equipo")
-                        add(list, "HUIR", bx + bw * 1.25f, fh * 0.42f, bw, bh, "Huir")
+                        add(list, "HUIR", bx + bw * 1.25f, fh * 0.42f, bw, bh, "Huir", enabled = b.wild)
                     }
                     Battle.Phase.MOVES -> {
                         b.active.moves.forEachIndexed { i, mv ->
                             add(list, "MOVE:$i", fw * 0.03f, fh * 0.20f + i * fh * 0.135f, fw * 0.30f, fh * 0.115f,
                                 mv.name, "${mv.type}  •  Pot. ${mv.power}  •  ${mv.accuracy}%",
-                                icon = com.dario.pokemonadventure.data.TypeColors.color(mv.type))
+                                icon = TypeColors.color(mv.type))
                         }
                         add(list, "VOLVER", bx, fh * 0.60f, bw, bh, "Volver")
                     }
                     Battle.Phase.BAG -> {
                         Items.SHOP.filter { player.itemCount(it.name) > 0 }.forEachIndexed { i, item ->
+                            val ballBlocked = b.trainer != null && item.kind == Items.Kind.BALL
                             add(list, "ITEM:${item.name}", fw * 0.03f, fh * 0.12f + i * fh * 0.13f, fw * 0.32f, fh * 0.11f,
-                                "${item.name} x${player.itemCount(item.name)}", item.desc,
-                                icon = 0xFF9E9E9E.toInt())
+                                "${item.name} x${player.itemCount(item.name)}",
+                                if (ballBlocked) "No sirve contra entrenadores" else item.desc,
+                                enabled = !ballBlocked, icon = 0xFF9E9E9E.toInt())
                         }
                         add(list, "VOLVER", bx, fh * 0.60f, bw, bh, "Volver")
                     }
@@ -575,7 +670,7 @@ class GameEngine(val context: Context) {
                             add(list, "MON:$i", fw * 0.03f, fh * 0.12f + i * fh * 0.13f, fw * 0.34f, fh * 0.11f,
                                 "${m.nickname}  Nv.${m.level}", "PS ${m.hp}/${m.maxHp}",
                                 enabled = m.hp > 0 && (i != player.activeIndex || b.mustSwitch),
-                                icon = com.dario.pokemonadventure.data.TypeColors.color(m.species.types[0]))
+                                icon = TypeColors.color(m.species.types[0]))
                         }
                         add(list, "VOLVER", bx, fh * 0.60f, bw, bh, "Volver", enabled = !b.mustSwitch)
                     }

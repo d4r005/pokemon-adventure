@@ -126,12 +126,18 @@ object WorldRenderer {
             com.dario.pokemonadventure.world.Npc.Kind.NURSE -> 0xFFE88BB0.toInt()
             com.dario.pokemonadventure.world.Npc.Kind.SHOP -> 0xFF5F8FBF.toInt()
             com.dario.pokemonadventure.world.Npc.Kind.GUIDE -> 0xFF6FA85F.toInt()
+            com.dario.pokemonadventure.world.Npc.Kind.TRAINER -> 0xFFB04A5A.toInt()
         }
         canvas.drawOval(RectF(cx - ts * 0.30f, cy + ts * 0.18f, cx + ts * 0.30f, cy + ts * 0.30f), Paints.fill(0x44000000.toInt()))
         canvas.drawCircle(cx, cy - ts * 0.05f, ts * 0.30f, Paints.fill(body))
         canvas.drawCircle(cx, cy - ts * 0.38f, ts * 0.19f, Paints.fill(0xFFF2C9A0.toInt()))
         canvas.drawCircle(cx - ts * 0.06f, cy - ts * 0.40f, ts * 0.03f, Paints.fill(0xFF1B1B24.toInt()))
         canvas.drawCircle(cx + ts * 0.06f, cy - ts * 0.40f, ts * 0.03f, Paints.fill(0xFF1B1B24.toInt()))
+        if (kind == com.dario.pokemonadventure.world.Npc.Kind.TRAINER) {
+            // Gorra y marcador de duelo
+            canvas.drawCircle(cx, cy - ts * 0.48f, ts * 0.16f, Paints.fill(0xFF1B1B24.toInt()))
+            Paints.centerText(canvas, "!", cx, cy - ts * 0.80f, 0xFFFFD54F.toInt(), ts * 0.35f)
+        }
     }
 
     private fun drawPlayer(canvas: Canvas, engine: GameEngine, cx: Float, cy: Float, ts: Float, time: Float) {

@@ -2,6 +2,7 @@ package com.dario.pokemonadventure.ui
 
 import android.graphics.Canvas
 import android.graphics.RectF
+import com.dario.pokemonadventure.data.Dex
 import com.dario.pokemonadventure.game.GameEngine
 import com.dario.pokemonadventure.game.Screen
 import com.dario.pokemonadventure.world.Regions
@@ -59,7 +60,7 @@ object MenuRenderer {
         val w = canvas.width.toFloat()
         val h = canvas.height.toFloat()
         canvas.drawColor(0x99000000.toInt())
-        Paints.centerText(canvas, "PAUSA", w * 0.50f, h * 0.10f, 0xFFFFFFFF.toInt(), h * 0.06f)
+        Paints.centerText(canvas, "PAUSA", w * 0.50f, h * 0.06f, 0xFFFFFFFF.toInt(), h * 0.06f)
         Paints.drawButtons(canvas, engine.buttons, h)
         if (engine.menuMsgT > 0) {
             val box = RectF(w * 0.25f, h * 0.80f, w * 0.75f, h * 0.90f)
@@ -91,6 +92,17 @@ object MenuRenderer {
         }
     }
 
+    fun dex(canvas: Canvas, engine: GameEngine) {
+        val w = canvas.width.toFloat()
+        val h = canvas.height.toFloat()
+        canvas.drawColor(0xFF1B2430.toInt())
+        Paints.centerText(canvas, "Pokédex", w * 0.25f, h * 0.045f, 0xFFE8538B.toInt(), h * 0.05f)
+        val caught = engine.player.dexCaught.size
+        val seen = engine.player.dexSeen.size
+        Paints.centerText(canvas, "Capturados: $caught / ${Dex.ALL.size}    Vistos: $seen", w * 0.25f, h * 0.085f, 0xFFFFFFFF.toInt(), h * 0.030f)
+        Paints.drawButtons(canvas, engine.buttons, h)
+    }
+
     fun dispatch(canvas: Canvas, engine: GameEngine) {
         when (engine.screen) {
             Screen.TITLE -> title(canvas, engine)
@@ -99,6 +111,7 @@ object MenuRenderer {
             Screen.MENU -> pause(canvas, engine)
             Screen.TEAM -> team(canvas, engine)
             Screen.SHOP -> shop(canvas, engine)
+            Screen.DEX -> dex(canvas, engine)
             else -> {}
         }
     }

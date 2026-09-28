@@ -16,6 +16,11 @@ mundo abierto por región, portales de distorsión para viajar y estilos de luch
   (máxima potencia, actúas al final).
 - **Captura** con Poké Ball / Super Ball / Ultra Ball, experiencia, subida de nivel,
   aprendizaje de movimientos y caja cuando el equipo está lleno.
+- **Evoluciones**: al alcanzar el nivel indicado, tus Pokémon evolucionan
+  (Bulbasaur → Ivysaur → Venusaur, Magikarp → Gyarados, Dreepy → Dragapult, etc.).
+- **Entrenadores rivales**: 2 por región (18 en total), cada uno con su equipo y
+  recompensa; no puedes huir de ellos ni robar sus Pokémon, y recuerdan si ya los venciste.
+- **Pokédex** con registro de vistos y capturados (42 especies), accesible desde el menú de pausa.
 - **Centro Pokémon** (curación gratuita) y **tienda** en cada pueblo, con dinero ganado en combates.
 - **Guardado** de la partida en el dispositivo (JSON en SharedPreferences).
 - **Todo el arte se dibuja por código** (Canvas): sin assets externos, APK ligero.
@@ -62,10 +67,10 @@ app/src/main/java/com/dario/pokemonadventure/
 
 ## Hoja de ruta
 
-- [ ] Batallas de entrenadores y rival
+- [x] Batallas de entrenadores y rival
+- [x] Pokédex con registro de vistos/capturados
+- [x] Evoluciones por nivel
 - [ ] Distorsiones espaciotemporales con apariciones masivas (estilo Leyendas)
-- [ ] Pokédex con registro de vistos/capturados
-- [ ] Evoluciones por nivel
 - [ ] Música y efectos de sonido
 - [ ] Ciclo día/noche
 - [ ] Misiones y objetos del mundo

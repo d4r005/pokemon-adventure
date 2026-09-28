@@ -15,8 +15,14 @@ object Tile {
     const val PAVEMENT = 9
 }
 
-class Npc(val x: Int, val y: Int, val kind: Kind, val name: String) {
-    enum class Kind { NURSE, SHOP, GUIDE }
+class Npc(
+    val x: Int,
+    val y: Int,
+    val kind: Kind,
+    val name: String,
+    val trainerIndex: Int = -1
+) {
+    enum class Kind { NURSE, SHOP, GUIDE, TRAINER }
 }
 
 class TileMap(val def: RegionDef) {
@@ -28,6 +34,7 @@ class TileMap(val def: RegionDef) {
     val townX = 24
     val townY = 20
     val npcs = ArrayList<Npc>()
+    val trainers: List<TrainerDef> = def.trainers
     private val rnd = java.util.Random(def.seed)
 
     init {
@@ -158,9 +165,19 @@ class TileMap(val def: RegionDef) {
         }
         set(townX, townY - 8, Tile.PORTAL)
 
-        // 14. NPCs
+        // 14. NPCs de servicios
         npcs.add(Npc(townX - 2, townY, Npc.Kind.NURSE, "Enfermera Joy"))
         npcs.add(Npc(townX + 2, townY, Npc.Kind.SHOP, "Tendero"))
         npcs.add(Npc(townX, townY + 2, Npc.Kind.GUIDE, "Guía"))
+
+        // 15. Entrenadores rivales (sobre el corredor, garantizamos suelo firme)
+        val t1 = intArrayOf(townX, spawnY - 8)
+        val t2 = intArrayOf(townX + 1, townY + 6)
+        val spots = listOf(t1, t2)
+        for (i in trainers.indices) {
+            val s = spots[i % spots.size]
+            set(s[0], s[1], Tile.PATH)
+            npcs.add(Npc(s[0], s[1], Npc.Kind.TRAINER, trainers[i].name, i))
+        }
     }
 }

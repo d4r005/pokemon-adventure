@@ -36,6 +36,14 @@ object BattleRenderer {
         canvas.drawRoundRect(ePanel, h * 0.02f, h * 0.02f, Paints.fill(0xCC26303F.toInt()))
         Paints.leftText(canvas, "${b.enemy.nickname}  Nv.${b.enemy.level}", ePanel.left + w * 0.015f, ePanel.top + h * 0.05f, 0xFFFFFFFF.toInt(), h * 0.030f)
         Paints.hpBar(canvas, ePanel.left + w * 0.015f, ePanel.top + h * 0.07f, ePanel.width() - w * 0.03f, h * 0.016f, b.enemy.hp.toFloat() / b.enemy.maxHp)
+        if (b.trainer != null) {
+            for (i in b.enemyTeam.indices) {
+                val alive = b.enemyTeam[i].hp > 0
+                val bx = ePanel.right + w * 0.015f + i * h * 0.034f
+                canvas.drawCircle(bx, ePanel.top + h * 0.035f, h * 0.014f, Paints.fill(if (alive) 0xFFE84C3D.toInt() else 0xFF666666.toInt()))
+                canvas.drawCircle(bx, ePanel.top + h * 0.035f, h * 0.006f, Paints.fill(if (alive) 0xFFF5F5F5.toInt() else 0xFF333333.toInt()))
+            }
+        }
 
         // Panel del jugador
         val pPanel = RectF(w * 0.60f, h * 0.58f, w * 0.97f, h * 0.73f)
