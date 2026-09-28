@@ -20,9 +20,10 @@ class Npc(
     val y: Int,
     val kind: Kind,
     val name: String,
-    val trainerIndex: Int = -1
+    val trainerIndex: Int = -1,
+    val giftId: Int = -1
 ) {
-    enum class Kind { NURSE, SHOP, GUIDE, TRAINER }
+    enum class Kind { NURSE, SHOP, GUIDE, TRAINER, GIFT }
 }
 
 class TileMap(val def: RegionDef) {
@@ -170,14 +171,26 @@ class TileMap(val def: RegionDef) {
         npcs.add(Npc(townX + 2, townY, Npc.Kind.SHOP, "Tendero"))
         npcs.add(Npc(townX, townY + 2, Npc.Kind.GUIDE, "Guía"))
 
-        // 15. Entrenadores rivales (sobre el corredor, garantizamos suelo firme)
-        val t1 = intArrayOf(townX, spawnY - 8)
-        val t2 = intArrayOf(townX + 1, townY + 6)
-        val spots = listOf(t1, t2)
+        // 15. Entrenadores rivales: 5 puntos repartidos por la ruta y el pueblo
+        val spots = listOf(
+            intArrayOf(townX - 1, spawnY - 3),   // rival, junto a la plaza inicial
+            intArrayOf(townX, spawnY - 12),     // líder, mitad del camino
+            intArrayOf(townX + 1, townY + 6),   // líder, entrada del pueblo
+            intArrayOf(townX - 3, townY + 2),   // alto mando, dentro del pueblo
+            intArrayOf(townX - 1, townY - 6)    // campeón, junto al portal
+        )
         for (i in trainers.indices) {
             val s = spots[i % spots.size]
             set(s[0], s[1], Tile.PATH)
             npcs.add(Npc(s[0], s[1], Npc.Kind.TRAINER, trainers[i].name, i))
+        }
+
+        // 16. Regalos estilo Pokémon Amarillo (solo en Kanto):
+        //     Bulbasaur, Charmander y Squirtle entregados por NPCs del pueblo.
+        if (def.id == 0) {
+            npcs.add(Npc(townX - 3, townY - 2, Npc.Kind.GIFT, "Chica de las plantas", giftId = 1))
+            npcs.add(Npc(townX + 3, townY - 2, Npc.Kind.GIFT, "Chico entusiasta", giftId = 4))
+            npcs.add(Npc(townX + 3, townY + 2, Npc.Kind.GIFT, "Marinera", giftId = 7))
         }
     }
 }

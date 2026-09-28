@@ -20,7 +20,7 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.random.Random
 
-enum class Screen { TITLE, STARTER, WORLD, BATTLE, MENU, TEAM, SHOP, REGION, DEX }
+enum class Screen { TITLE, WORLD, BATTLE, MENU, TEAM, SHOP, REGION, DEX }
 
 class GameEngine(val context: Context) {
 
@@ -48,6 +48,10 @@ class GameEngine(val context: Context) {
 
     private var lastW = 1
     private var lastH = 1
+
+    companion object {
+        const val STARTER_ID = 10 // Pikachu, como en Pokémon Amarillo
+    }
 
     // ---------------------------------------------------------
     // Mapas
@@ -85,19 +89,20 @@ class GameEngine(val context: Context) {
     // Ciclo de vida del juego
     // ---------------------------------------------------------
 
-    fun newGame(starterId: Int) {
+    fun newGame() {
         player = Player()
-        val starter = Mon(Dex.byId(starterId), 5)
-        player.party.add(starter)
+        // Pokémon Amarillo: el Prof. Oak te entrega a Pikachu
+        val pikachu = Mon(Dex.byId(STARTER_ID), 5)
+        player.party.add(pikachu)
         player.activeIndex = 0
-        dexCatch(starterId)
-        enterRegion(Regions.kalosIndex())
+        dexCatch(STARTER_ID)
+        enterRegion(0) // Kanto
         screen = Screen.WORLD
         dialog.clear()
-        dialog.addLast("¡Bienvenido a Kalos, entrenador!")
-        dialog.addLast("Los portales de distorsión conectan todas las regiones. ¡Explóralas!")
+        dialog.addLast("Prof. Oak: ¡Toma este Pikachu! Será tu compañero, igual que en Pokémon Amarillo.")
+        dialog.addLast("¡Tu aventura comienza en Kanto!")
+        dialog.addLast("En el pueblo hay gente que regala Bulbasaur, Charmander y Squirtle. ¡Búscalos!")
         dialog.addLast("Muévete con el D-pad y usa el botón A para interactuar.")
-        dialog.addLast("Cada región tiene dos entrenadores rivales esperándote.")
     }
 
     fun loadGame() {
@@ -292,6 +297,24 @@ class GameEngine(val context: Context) {
                     dialog.addLast("Tu equipo está debilitado... Ve primero al Centro Pokémon.")
                 }
             }
+            Npc.Kind.GIFT -> {
+                val giftId = npc.giftId
+                if (giftId <= 0) return
+                val giftKey = "gift:$giftId"
+                if (player.giftsReceived.contains(giftKey)) {
+                    dialog.addLast("${npc.name}: ¡Cuídalo mucho! Adiós.")
+                    return
+                }
+                if (player.party.size >= 6) {
+                    dialog.addLast("${npc.name}: Tu equipo está lleno... Vuelve con espacio libre.")
+                    return
+                }
+                val mon = Mon(Dex.byId(giftId), 5)
+                player.party.add(mon)
+                player.giftsReceived.add(giftKey)
+                dexCatch(giftId)
+                dialog.addLast("${npc.name}: ¡Este ${mon.nickname} busca un buen entrenador! ¡Es tuyo!")
+            }
         }
     }
 
@@ -302,9 +325,10 @@ class GameEngine(val context: Context) {
             "El estilo Ágil te deja actuar primero, pero golpea más suave.",
             "El estilo Fuerte pega con todo, pero actuarás al final del turno.",
             "Los entrenadores rivales no perdonan: ¡no puedes huir de ellos!",
-            "Los Pokémon suben de nivel con experiencia y algunos evolucionan.",
+            "Cada Pokémon solo aparece en su región de origen. ¡Visítalas todas!",
+            "Aquí en Kanto hay gente que regala Bulbasaur, Charmander y Squirtle.",
             "Registra tu progreso en la Pokédex desde el menú de pausa.",
-            "Se dice que Arceus aparece en las distorsiones más raras..."
+            "Se dice que Arceus aparece en las distorsiones de Sinnoh..."
         )
         return tips[Random.nextInt(tips.size)]
     }
@@ -434,13 +458,8 @@ class GameEngine(val context: Context) {
                 "MENU" -> screen = Screen.MENU
             }
             Screen.TITLE -> when (id) {
-                "NEW" -> screen = Screen.STARTER
+                "NEW" -> newGame()
                 "CONT" -> loadGame()
-            }
-            Screen.STARTER -> {
-                if (id.startsWith("STARTER:")) {
-                    newGame(id.substringAfter(":").toInt())
-                }
             }
             Screen.REGION -> when {
                 id.startsWith("REGION:") -> travel(id.substringAfter(":").toInt())
@@ -545,18 +564,6 @@ class GameEngine(val context: Context) {
                 val bh = fh * 0.10f
                 add(list, "NEW", (fw - bw) / 2, fh * 0.40f, bw, bh, "Nueva partida")
                 add(list, "CONT", (fw - bw) / 2, fh * 0.56f, bw, bh, "Continuar", enabled = lastSaveExists)
-            }
-            Screen.STARTER -> {
-                val bw = fw * 0.26f
-                val bh = fh * 0.44f
-                val gap = fw * 0.03f
-                val totalW = bw * 3 + gap * 2
-                val x0 = (fw - totalW) / 2
-                for (i in listOf(1, 4, 7).withIndex()) {
-                    val sp = Dex.byId(i.value)
-                    add(list, "STARTER:${i.value}", x0 + i.index * (bw + gap), fh * 0.28f, bw, bh,
-                        sp.name, sp.types.joinToString(" / "), icon = TypeColors.color(sp.types[0]), style = 1)
-                }
             }
             Screen.REGION -> {
                 val bw = fw * 0.27f

@@ -38,15 +38,6 @@ object MenuRenderer {
         Paints.centerText(canvas, "Fan game no oficial", w / 2, h * 0.92f, 0x66FFFFFF.toInt(), h * 0.025f)
     }
 
-    fun starter(canvas: Canvas, engine: GameEngine) {
-        val w = canvas.width.toFloat()
-        val h = canvas.height.toFloat()
-        canvas.drawColor(0xFF1E3A2E.toInt())
-        Paints.centerText(canvas, "¡Elige a tu compañero de aventura!", w / 2, h * 0.10f, 0xFFFFFFFF.toInt(), h * 0.05f)
-        Paints.drawButtons(canvas, engine.buttons, h)
-        Paints.centerText(canvas, "Cada región tiene sus propios secretos...", w / 2, h * 0.90f, 0x88FFFFFF.toInt(), h * 0.03f)
-    }
-
     fun region(canvas: Canvas, engine: GameEngine) {
         val w = canvas.width.toFloat()
         val h = canvas.height.toFloat()
@@ -106,7 +97,6 @@ object MenuRenderer {
     fun dispatch(canvas: Canvas, engine: GameEngine) {
         when (engine.screen) {
             Screen.TITLE -> title(canvas, engine)
-            Screen.STARTER -> starter(canvas, engine)
             Screen.REGION -> region(canvas, engine)
             Screen.MENU -> pause(canvas, engine)
             Screen.TEAM -> team(canvas, engine)

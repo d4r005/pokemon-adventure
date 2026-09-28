@@ -55,6 +55,10 @@ object SaveManager {
         for (k in p.beatenTrainers) beaten.put(k)
         root.put("beaten", beaten)
 
+        val gifts = JSONArray()
+        for (k in p.giftsReceived) gifts.put(k)
+        root.put("gifts", gifts)
+
         prefs(context).edit().putString(KEY, root.toString()).apply()
     }
 
@@ -108,6 +112,12 @@ object SaveManager {
             val beaten = root.optJSONArray("beaten")
             if (beaten != null) {
                 for (i in 0 until beaten.length()) p.beatenTrainers.add(beaten.getString(i))
+            }
+
+            p.giftsReceived.clear()
+            val gifts = root.optJSONArray("gifts")
+            if (gifts != null) {
+                for (i in 0 until gifts.length()) p.giftsReceived.add(gifts.getString(i))
             }
 
             p

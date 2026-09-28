@@ -9,18 +9,24 @@ mundo abierto por región, portales de distorsión para viajar y estilos de luch
 
 - **9 regiones jugables**: Kanto, Johto, Hoenn, Sinnoh, Unova, Kalos, Alola, Galar y Paldea,
   cada una con su propia paleta, mapa, pueblo, niveles y tabla de encuentros.
+- **Cada especie solo aparece en su región de origen**: las 82 especies de las
+  9 generaciones son capturables en su región correspondiente.
 - **Portales de distorsión**: desde el pueblo de cualquier región puedes viajar a todas las demás.
-- **Comienzas en Kalos** (homenaje a Z-A) eligiendo inicial entre Bulbasaur, Charmander y Squirtle.
+- **Comienzas en Kanto** con Pikachu como inicial, como en **Pokémon Amarillo**;
+  además, tres NPCs del pueblo te regalan **Bulbasaur, Charmander y Squirtle**.
 - **Combates por turnos** con tipos, eficacias, STAB, precisión y golpes críticos simulados.
 - **Estilos de lucha estilo Leyendas**: Normal, Ágil (actúas primero, menos potencia) y Fuerte
   (máxima potencia, actúas al final).
 - **Captura** con Poké Ball / Super Ball / Ultra Ball, experiencia, subida de nivel,
   aprendizaje de movimientos y caja cuando el equipo está lleno.
-- **Evoluciones**: al alcanzar el nivel indicado, tus Pokémon evolucionan
-  (Bulbasaur → Ivysaur → Venusaur, Magikarp → Gyarados, Dreepy → Dragapult, etc.).
-- **Entrenadores rivales**: 2 por región (18 en total), cada uno con su equipo y
-  recompensa; no puedes huir de ellos ni robar sus Pokémon, y recuerdan si ya los venciste.
-- **Pokédex** con registro de vistos y capturados (42 especies), accesible desde el menú de pausa.
+- **Evoluciones completas**: al alcanzar el nivel indicado, tus Pokémon evolucionan
+  (Pikachu → Raichu, Bulbasaur → Ivysaur → Venusaur, Chikorita → Bayleef → Meganium,
+  Magikarp → Gyarados, Dreepy → Dragapult, Rookidee → Corviknight, etc.).
+- **45 entrenadores rivales** (5 por región: rival, 2 líderes de gimnasio,
+  Alto Mando y campeón, siguiendo cada entrega), con equipos y recompensas propias;
+  no puedes huir de ellos ni robar sus Pokémon, y recuerdan si ya los venciste.
+- **Pokédex** con registro de vistos y capturados (82 especies de las 9 generaciones),
+  accesible desde el menú de pausa.
 - **Centro Pokémon** (curación gratuita) y **tienda** en cada pueblo, con dinero ganado en combates.
 - **Guardado** de la partida en el dispositivo (JSON en SharedPreferences).
 - **Todo el arte se dibuja por código** (Canvas): sin assets externos, APK ligero.

@@ -127,6 +127,7 @@ object WorldRenderer {
             com.dario.pokemonadventure.world.Npc.Kind.SHOP -> 0xFF5F8FBF.toInt()
             com.dario.pokemonadventure.world.Npc.Kind.GUIDE -> 0xFF6FA85F.toInt()
             com.dario.pokemonadventure.world.Npc.Kind.TRAINER -> 0xFFB04A5A.toInt()
+            com.dario.pokemonadventure.world.Npc.Kind.GIFT -> 0xFF7FBF9E.toInt()
         }
         canvas.drawOval(RectF(cx - ts * 0.30f, cy + ts * 0.18f, cx + ts * 0.30f, cy + ts * 0.30f), Paints.fill(0x44000000.toInt()))
         canvas.drawCircle(cx, cy - ts * 0.05f, ts * 0.30f, Paints.fill(body))

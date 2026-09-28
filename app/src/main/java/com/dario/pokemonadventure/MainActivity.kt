@@ -40,7 +40,7 @@ class MainActivity : Activity() {
             Screen.MENU, Screen.TEAM, Screen.SHOP -> gameView.engine.screen = Screen.WORLD
             Screen.DEX -> gameView.engine.screen = Screen.MENU
             Screen.BATTLE -> { /* no se puede huir con atrás */ }
-            Screen.STARTER, Screen.REGION -> gameView.engine.screen = Screen.TITLE
+            Screen.REGION -> gameView.engine.screen = Screen.TITLE
             else -> super.onBackPressed()
         }
     }
